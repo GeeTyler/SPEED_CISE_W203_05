@@ -1,4 +1,3 @@
-
 name: CI
 
 on:
@@ -6,15 +5,15 @@ on:
     branches:
       - main
       - development
+  workflow_call:
 
 jobs:
   build-and-test:
-
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [20.14.0] 
+        node-version: [20.14.0]
 
     steps:
 
