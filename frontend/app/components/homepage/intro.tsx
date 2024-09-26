@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
                             <CardDescription className="text-2xl">Systematic Program for Evaluating and Enriching Documents</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-white">SPEED is your go-to platform for accessing a vast database of articles. Whether you're a researcher, student, or knowledge enthusiast, our collection has something for everyone.</p>
+                            <p className="text-white">SPEED is your go-to platform for accessing a vast database of articles. Whether you&apos;re a researcher, student, or knowledge enthusiast, our collection has something for everyone.</p>
                         </CardContent>
                     </Card>
                 );
