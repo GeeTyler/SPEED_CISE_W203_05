@@ -31,4 +31,8 @@ describe('ArticleController (e2e)', () => {
         expect(res.body.title).toBe('Test Article');
       });
   });
+
+  afterAll(async () => {
+    await app.close();
+  });
 });
