@@ -9,7 +9,7 @@ import { RejectedModule } from './api/articles/module/rejected.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    MongooseModule.forRoot(process.env.DB_URI),
+    MongooseModule.forRoot(process.env.MONGODB_URI),
     ModeratorQueueModule,
     RejectedModule,
   ],
