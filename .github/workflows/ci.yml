@@ -11,6 +11,17 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    services:
+      mongo:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongo --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     strategy:
       matrix:
         node-version: [20.14.0]
@@ -28,6 +39,9 @@ jobs:
       - name: Install backend dependencies
         working-directory: ./backend
         run: npm ci
+
+      - name: Set up environment variables
+        run: echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> $GITHUB_ENV
 
       - name: Run backend unit tests
         working-directory: ./backend
