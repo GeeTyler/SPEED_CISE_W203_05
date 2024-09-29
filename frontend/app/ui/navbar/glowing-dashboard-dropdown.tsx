@@ -2,15 +2,18 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
+import Link from 'next/link'
 
 export function GlowingDashboardDropdown() {
   const [isOpen, setIsOpen] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
+  const dropdownRef = useRef(null)
 
-  const toggleDropdown = () => setIsOpen(!isOpen)
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen)
+  }
 
   const handleClickOutside = (event: MouseEvent) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
       setIsOpen(false)
     }
   }
@@ -23,10 +26,10 @@ export function GlowingDashboardDropdown() {
   }, [])
 
   const dashboards = [
-    "User Dashboard",
-    "Moderator Dashboard",
-    "Analyst Dashboard",
-    "Admin Dashboard"
+    { name: "User Dashboard", path: "/components/user-dashboard" },
+    { name: "Moderator Dashboard", path: "/components/moderator-dashboard" },
+    { name: "Analyst Dashboard", path: "/components/analyst-dashboard" },
+    { name: "Admin Dashboard", path: "/components/admin-dashboard" }
   ]
 
   return (
@@ -45,15 +48,14 @@ export function GlowingDashboardDropdown() {
           </button>
           {isOpen && (
             <div className="absolute w-full mt-2 bg-black border border-gray-700 rounded-lg shadow-lg z-10">
-              {dashboards.map((dashboard, index) => (
-                <a
-                  key={index}
-                  href="#"
-                  className="block px-4 py-2 text-white hover:bg-gray-800 transition-colors duration-200 first:rounded-t-lg last:rounded-b-lg"
-                  onClick={() => setIsOpen(false)}
+              {dashboards.map((dashboard) => (
+                <Link
+                  key={dashboard.name}
+                  href={dashboard.path}
+                  className="block w-full text-left px-4 py-2 text-white hover:bg-gray-700"
                 >
-                  {dashboard}
-                </a>
+                  {dashboard.name}
+                </Link>
               ))}
             </div>
           )}
