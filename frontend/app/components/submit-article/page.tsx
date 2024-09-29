@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import SubmitArticleForm from './submitArticleForm';
+import SubmitArticleForm from './_components/submitArticleForm';
 
 const SubmitArticlePage: React.FC = () => {
   return (
