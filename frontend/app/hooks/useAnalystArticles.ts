@@ -7,7 +7,11 @@ export const useAnalystArticles = () => {
   const fetchAnalystArticles = async () => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/analyst-queue-articles`);
-      setAnalystArticles(response.data);
+      const sortedArticles = response.data.sort(
+        (a, b) =>
+          new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
+      );;
+      setAnalystArticles(sortedArticles);
     } catch (error) {
       console.error('Error fetching analyst queue articles:', error);
     }

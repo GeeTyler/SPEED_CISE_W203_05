@@ -1,47 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
 import ArticlesTable from './_components/ArticlesTable';
+import { useModeratorArticles } from '@/app/hooks/useModeratorArticles';
+import { useAnalystArticles } from '@/app/hooks/useAnalystArticles';
 
 const ModeratorDashboardPage: React.FC = () => {
-  const [moderatorArticles, setModeratorArticles] = useState([]);
-  const [analystArticles, setAnalystArticles] = useState([]);
-
-  const fetchModeratorArticles = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/moderator-queue-articles`
-      );
-      const sortedArticles = response.data.sort(
-        (a, b) =>
-          new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
-      );
-      setModeratorArticles(sortedArticles);
-    } catch (error) {
-      console.error('Error fetching moderator queue articles:', error);
-    }
-  };
-
-  const fetchAnalystArticles = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/analyst-queue-articles`
-      );
-      const sortedArticles = response.data.sort(
-        (a, b) =>
-          new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
-      );
-      setAnalystArticles(sortedArticles);
-    } catch (error) {
-      console.error('Error fetching analyst queue articles:', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchModeratorArticles();
-    fetchAnalystArticles();
-  }, []);
+  const { moderatorArticles, fetchModeratorArticles } = useModeratorArticles();
+  const { analystArticles, fetchAnalystArticles } = useAnalystArticles();
 
   const handleArticleUpdate = () => {
     fetchModeratorArticles();

@@ -7,7 +7,11 @@ export const useModeratorArticles = () => {
   const fetchModeratorArticles = async () => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/moderator-queue-articles`);
-      setModeratorArticles(response.data);
+      const sortedArticles = response.data.sort(
+        (a, b) =>
+          new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
+      );;
+      setModeratorArticles(sortedArticles);
     } catch (error) {
       console.error('Error fetching moderator queue articles:', error);
     }
