@@ -10,12 +10,13 @@ export class NotificationService {
     private notificationModel: Model<NotificationDocument>,
   ) {}
 
-  async createNotification(message: string): Promise<Notification> {
-    const newNotification = new this.notificationModel({ message });
+  async createNotification(message: string, type: string): Promise<Notification> {
+    const newNotification = new this.notificationModel({ message, type });
     return newNotification.save();
   }
 
-  async findAll(): Promise<Notification[]> {
-    return this.notificationModel.find().sort({ createdAt: -1 }).exec();
+  async findAll(type?: string): Promise<Notification[]> {
+    const filter = type ? { type } : {};
+    return this.notificationModel.find(filter).sort({ createdAt: -1 }).exec();
   }
 }

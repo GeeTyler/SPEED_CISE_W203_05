@@ -35,7 +35,12 @@ export class ModeratorQueueService {
 
   async submitArticle(articleData: any): Promise<ModeratorQueueArticle> {
     const newArticle = new this.moderatorQueueArticleModel(articleData);
-    return newArticle.save();
+    await newArticle.save();
+    await this.notificationService.createNotification(
+      `A new article titled "${articleData.title}" has been submitted for moderator review.`,
+      'submission',
+    );
+    return newArticle;
   }
 
   async rejectArticle(id: string): Promise<void> {
@@ -48,6 +53,7 @@ export class ModeratorQueueService {
       // Create a notification
       await this.notificationService.createNotification(
         `Your article "${article.title}" has been rejected by the moderator.`,
+        'moderation',
       );
     }
   }
@@ -59,10 +65,15 @@ export class ModeratorQueueService {
       await analystArticle.save();
       await this.moderatorQueueArticleModel.findByIdAndDelete(id).exec();
 
-      // Create a notification
       await this.notificationService.createNotification(
-        `Your article "${article.title}" has been approved by the moderator and is now under analyst review.`,
-      );
+      `Your article "${article.title}" has been approved by the moderator and is now under analyst review.`,
+      'moderation',
+    );
+
+    await this.notificationService.createNotification(
+      `The article "${article.title}" is waiting to be checked by you.`,
+      'analyst' 
+    );
     }
   }
 }
