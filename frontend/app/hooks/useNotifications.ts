@@ -5,16 +5,17 @@ interface Notification {
   _id: string;
   message: string;
   createdAt: string;
+  type: string;
 }
 
-const useNotifications = () => {
+const useNotifications = (type: string) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/notifications`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/notifications?type=${type}`
         );
         setNotifications(response.data);
       } catch (error) {
