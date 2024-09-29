@@ -69,6 +69,11 @@ export class ModeratorQueueService {
       `Your article "${article.title}" has been approved by the moderator and is now under analyst review.`,
       'moderation',
     );
+
+    await this.notificationService.createNotification(
+      `The article "${article.title}" is waiting to be checked by you.`,
+      'analyst' 
+    );
     }
   }
 }
