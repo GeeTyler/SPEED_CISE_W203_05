@@ -12,19 +12,22 @@ interface Article {
   submittedAt: string;
 }
 
-const useArticles = () => {
+const useModeratorQueueArticles = () => {
   const [articles, setArticles] = useState<Article[]>([]);
 
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/moderator-queue-articles`);
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/moderator-queue-articles`
+        );
         const sortedArticles = response.data.sort(
-          (a: Article, b: Article) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
+          (a: Article, b: Article) =>
+            new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
         );
         setArticles(sortedArticles);
       } catch (error) {
-        console.error('Error fetching articles:', error);
+        console.error('Error fetching moderator queue articles:', error);
       }
     };
 
@@ -34,4 +37,4 @@ const useArticles = () => {
   return articles;
 };
 
-export default useArticles;
+export default useModeratorQueueArticles;
