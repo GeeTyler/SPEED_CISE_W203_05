@@ -13,6 +13,13 @@ const config: Config = {
 		maxWidth: {
 			'1280': '1280px',
 		  },
+		  width: {
+			'400': '400px',
+			'600': '600px', 
+			'800': '800px',
+			'1000': '1000px',
+			'1200': '1200px',
+		},
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',

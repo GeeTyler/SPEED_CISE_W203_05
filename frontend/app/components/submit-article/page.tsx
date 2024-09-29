@@ -5,7 +5,7 @@ import SubmitArticleForm from './_components/submitArticleForm';
 
 const SubmitArticlePage: React.FC = () => {
   return (
-    <main>
+    <main className="">
       <SubmitArticleForm />
     </main>
   );
