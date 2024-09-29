@@ -1,40 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
 import ArticlesTable from '../moderator-dashboard/_components/ArticlesTable';
 import NotificationDropdown from '@/app/ui/notificationdropdown/notificationdropdown';
+import { useModeratorArticles } from '@/app/hooks/useModeratorArticles';
+import { useAnalystArticles } from '@/app/hooks/useAnalystArticles';
 
 const UserDashboardPage: React.FC = () => {
-  const [moderatorArticles, setModeratorArticles] = useState([]);
-  const [analystArticles, setAnalystArticles] = useState([]);
-
-  const fetchModeratorArticles = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/moderator-queue-articles`,
-      );
-      setModeratorArticles(response.data);
-    } catch (error) {
-      console.error('Error fetching moderator queue articles:', error);
-    }
-  };
-
-  const fetchAnalystArticles = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/analyst-queue-articles`,
-      );
-      setAnalystArticles(response.data);
-    } catch (error) {
-      console.error('Error fetching analyst queue articles:', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchModeratorArticles();
-    fetchAnalystArticles();
-  }, []);
+  const { moderatorArticles } = useModeratorArticles();
+  const { analystArticles } = useAnalystArticles();
 
   return (
     <main className="p-8">

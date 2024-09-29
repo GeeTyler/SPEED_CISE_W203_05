@@ -1,5 +1,6 @@
 import React from 'react';
-import axios from 'axios';
+import { useApproveArticle } from '@/app/hooks/useApproveArticle';
+import { useRejectArticle } from '@/app/hooks/useRejectArticle';
 
 interface Article {
   _id: string;
@@ -19,28 +20,9 @@ interface ArticlesTableProps {
 }
 
 const ArticlesTable: React.FC<ArticlesTableProps> = ({ articles, showActions = false, onArticleUpdate }) => {
+  const { handleApprove } = useApproveArticle(onArticleUpdate);
+  const { handleReject } = useRejectArticle(onArticleUpdate);
 
-  const handleApprove = async (id: string) => {
-    try {
-      await axios.patch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/moderator-queue-articles/${id}/approve`);
-      if (onArticleUpdate) {
-        onArticleUpdate();
-      }
-    } catch (error) {
-      console.error('Error approving article:', error);
-    }
-  };
-
-  const handleReject = async (id: string) => {
-    try {
-      await axios.patch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/moderator-queue-articles/${id}/reject`);
-      if (onArticleUpdate) {
-        onArticleUpdate();
-      }
-    } catch (error) {
-      console.error('Error rejecting article:', error);
-    }
-  };
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full border border-indigo-600 rounded-lg">
