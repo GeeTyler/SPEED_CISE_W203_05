@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { AnimatedSearchBar } from './animated-search-bar';
 import { GlowingDashboardDropdown } from './glowing-dashboard-dropdown';
 import { Menu, ChevronDown } from 'lucide-react';
 import "@/app/styles/link-animation.css"
@@ -44,7 +43,7 @@ const Navbar: React.FC = () => {
       <div className="hidden md:flex flex-row items-center justify-center gap-6">
         <Link href="/" className="hover-underline-animation">Home</Link>
         <Link href="/components/submit-article" className="whitespace-nowrap hover-underline-animation">Submit Article</Link>
-        <AnimatedSearchBar />
+        <Link href="/components/search-article" className="hover-underline-animation">Search Article</Link>
       </div>
       <div className="hidden md:block">
         <GlowingDashboardDropdown />
