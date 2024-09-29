@@ -3,11 +3,9 @@ import { render, screen } from '@testing-library/react'
 import Page from '../app/page'
  
 describe('Page', () => {
-  it('renders a heading', () => {
+  it('renders the HomePage inside a div', () => {
     render(<Page />)
- 
-    const heading = screen.getByRole('heading', { level: 1 })
- 
-    expect(heading).toBeInTheDocument()
+    const divElement = screen.getByTestId('homepage-container')
+    expect(divElement).toBeInTheDocument()
   })
 })

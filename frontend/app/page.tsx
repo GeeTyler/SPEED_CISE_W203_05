@@ -1,10 +1,9 @@
-import Link from 'next/link'
+
+import HomePage from './components/homepage/page'
 export default function Home() {
   return (
-    <div className="flex justify-center items-center min-h-screen m-auto">
-      <h1>Home</h1>
-Hello world
-<Link href="/components/about">About</Link>
+    <div data-testid="homepage-container">
+<HomePage />
     </div>
   );
 }
