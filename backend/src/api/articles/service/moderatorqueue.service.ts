@@ -9,6 +9,13 @@ import {
   RejectedArticle,
   RejectedArticleDocument,
 } from '../schema/rejected.schema';
+import { 
+  AnalystQueueArticle, 
+  AnalystQueueArticleDocument 
+} from '../schema/analystqueue.schema';
+import { Notification, NotificationDocument } from '../schema/notification.schema';
+import { NotificationService } from './notification.service';
+
 
 @Injectable()
 export class ModeratorQueueService {
@@ -17,24 +24,45 @@ export class ModeratorQueueService {
     private moderatorQueueArticleModel: Model<ModeratorQueueArticleDocument>,
     @InjectModel(RejectedArticle.name)
     private rejectedArticleModel: Model<RejectedArticleDocument>,
+    @InjectModel(AnalystQueueArticle.name)
+    private analystQueueArticleModel: Model<AnalystQueueArticleDocument>,
+    private notificationService: NotificationService, 
   ) {}
 
   async findAll(): Promise<ModeratorQueueArticle[]> {
     return this.moderatorQueueArticleModel.find().exec();
   }
 
-  async submitArticle(
-    article: ModeratorQueueArticle,
-  ): Promise<ModeratorQueueArticle> {
-    const newArticle = new this.moderatorQueueArticleModel(article);
+  async submitArticle(articleData: any): Promise<ModeratorQueueArticle> {
+    const newArticle = new this.moderatorQueueArticleModel(articleData);
     return newArticle.save();
   }
 
   async rejectArticle(id: string): Promise<void> {
     const article = await this.moderatorQueueArticleModel.findById(id).exec();
     if (article) {
-      await this.rejectedArticleModel.create(article.toObject());
+      const rejectedArticle = new this.rejectedArticleModel(article.toObject());
+      await rejectedArticle.save();
       await this.moderatorQueueArticleModel.findByIdAndDelete(id).exec();
+
+      // Create a notification
+      await this.notificationService.createNotification(
+        `Your article "${article.title}" has been rejected by the moderator.`,
+      );
+    }
+  }
+
+  async approveArticle(id: string): Promise<void> {
+    const article = await this.moderatorQueueArticleModel.findById(id).exec();
+    if (article) {
+      const analystArticle = new this.analystQueueArticleModel(article.toObject());
+      await analystArticle.save();
+      await this.moderatorQueueArticleModel.findByIdAndDelete(id).exec();
+
+      // Create a notification
+      await this.notificationService.createNotification(
+        `Your article "${article.title}" has been approved by the moderator and is now under analyst review.`,
+      );
     }
   }
 }

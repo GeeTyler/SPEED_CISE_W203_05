@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Patch, Post, Body, Param, HttpException, HttpStatus } from '@nestjs/common';
 import { ModeratorQueueService } from '../service/moderatorqueue.service';
 import { ModeratorQueueArticle } from '../schema/moderatorqueue.schema';
 
@@ -18,6 +18,21 @@ export class ModeratorQueueController {
 
   @Patch('/:id/reject')
   async rejectArticle(@Param('id') id: string) {
-    return this.moderatorQueueService.rejectArticle(id);
+    try {
+      await this.moderatorQueueService.rejectArticle(id);
+      return { message: 'Article rejected successfully' };
+    } catch (error) {
+      throw new HttpException('Article not found', HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @Patch('/:id/approve')
+  async approveArticle(@Param('id') id: string) {
+    try {
+      await this.moderatorQueueService.approveArticle(id);
+      return { message: 'Article approved successfully' };
+    } catch (error) {
+      throw new HttpException('Article not found', HttpStatus.NOT_FOUND);
+    }
   }
 }

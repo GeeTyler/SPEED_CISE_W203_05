@@ -1,11 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Date } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 
-export type ModeratorQueueArticleDocument =
-  HydratedDocument<ModeratorQueueArticle>;
+export type AnalystQueueArticleDocument = HydratedDocument<AnalystQueueArticle>;
 
 @Schema()
-export class ModeratorQueueArticle {
+export class AnalystQueueArticle {
   @Prop({ required: true })
   title: string;
 
@@ -28,7 +27,4 @@ export class ModeratorQueueArticle {
   submittedAt: Date;
 }
 
-
-export const ModeratorQueueArticleSchema = SchemaFactory.createForClass(
-  ModeratorQueueArticle,
-);
+export const AnalystQueueArticleSchema = SchemaFactory.createForClass(AnalystQueueArticle);
