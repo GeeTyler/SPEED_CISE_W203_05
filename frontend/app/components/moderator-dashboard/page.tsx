@@ -21,7 +21,7 @@ const ModeratorDashboardPage: React.FC = () => {
         <h1 className="text-2xl">Moderator Dashboard</h1>
         <ModeratorNotificationDropdown />
       </div>
-      <h1 className="text-2xl m-4">Articles Waiting for Review here</h1>
+      <h1 className="text-2xl m-4">Articles Waiting for Review</h1>
       <ArticlesTable
         articles={moderatorArticles}
         showActions={true}
