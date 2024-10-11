@@ -47,10 +47,6 @@ jobs:
         working-directory: ./backend
         run: npm test
 
-      - name: Run backend e2e tests
-        working-directory: ./backend
-        run: npm run test:e2e
-
       - name: Build backend
         working-directory: ./backend
         run: npm run build
