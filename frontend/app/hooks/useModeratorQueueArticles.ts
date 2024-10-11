@@ -18,8 +18,9 @@ const useModeratorQueueArticles = () => {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || `https://${process.env.VERCEL_URL}`;
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/moderator-queue-articles`
+          `${backendUrl}/api/moderator-queue-articles`
         );
         const sortedArticles = response.data.sort(
           (a: Article, b: Article) =>

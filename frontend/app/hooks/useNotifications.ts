@@ -14,8 +14,9 @@ const useNotifications = (type: string) => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || `https://${process.env.VERCEL_URL}`;
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/notifications?type=${type}`
+          `${backendUrl}/api/notifications?type=${type}`
         );
         setNotifications(response.data);
       } catch (error) {

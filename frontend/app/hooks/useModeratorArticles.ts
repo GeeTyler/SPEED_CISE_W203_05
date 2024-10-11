@@ -6,7 +6,8 @@ export const useModeratorArticles = () => {
 
   const fetchModeratorArticles = async () => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/moderator-queue-articles`);
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || `https://${process.env.VERCEL_URL}`;
+      const response = await axios.get(`${backendUrl}/api/moderator-queue-articles`);
       const sortedArticles = response.data.sort(
         (a, b) =>
           new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()

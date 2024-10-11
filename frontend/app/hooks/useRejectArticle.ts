@@ -3,7 +3,8 @@ import axios from 'axios';
 export const useRejectArticle = (onArticleUpdate?: () => void) => {
   const handleReject = async (id: string) => {
     try {
-      await axios.patch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/moderator-queue-articles/${id}/reject`);
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || `https://${process.env.VERCEL_URL}`;
+      await axios.patch(`${backendUrl}/api/moderator-queue-articles/${id}/reject`);
       if (onArticleUpdate) {
         onArticleUpdate();
       }

@@ -27,8 +27,9 @@ const useSubmitArticle = () => {
     }
 
     try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || `https://${process.env.VERCEL_URL}`;
       await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/moderator-queue-articles`,
+        `${backendUrl}/api/moderator-queue-articles`,
         data
       );
     } catch (error) {
