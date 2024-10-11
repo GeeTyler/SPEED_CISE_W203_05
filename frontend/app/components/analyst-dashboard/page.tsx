@@ -5,7 +5,7 @@ import ArticlesTable from './_components/ArticlesTable';
 import { useAnalystArticles } from '@/app/hooks/useAnalystArticles';
 import AnalystNotificationDropdown from './_components/analystNotificationDropdown';
 
-const AnalystDashboard: React.FC = () => {
+const AnalystDashboardPage: React.FC = () => {
     const { analystArticles, fetchAnalystArticles } = useAnalystArticles();
 
     const handleArticleUpdate = () => {
@@ -28,5 +28,5 @@ const AnalystDashboard: React.FC = () => {
     );
 };
 
-export default AnalystDashboard;
+export default AnalystDashboardPage;
 
