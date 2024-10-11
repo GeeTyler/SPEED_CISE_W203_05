@@ -6,9 +6,7 @@ export const useAnalystArticles = () => {
 
   const fetchAnalystArticles = async () => {
     try {
-      const commitHash = process.env.VERCEL_GIT_COMMIT_REF;
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || `https://speedcisew20305backend-git-${commitHash}-tyler-gees-projects-ab3c2f84.vercel.app`;
-      const response = await axios.get(`${backendUrl}/api/analyst-queue-articles`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/analyst-queue-articles`);
       const sortedArticles = response.data.sort(
         (a, b) =>
           new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
