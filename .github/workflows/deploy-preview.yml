@@ -9,7 +9,6 @@ on:
       - reopened
 
 jobs:
-
   Deploy-Backend:
     runs-on: ubuntu-latest
     steps:
@@ -29,9 +28,6 @@ jobs:
         working-directory: ./backend
       - name: Build Backend Project Artifacts
         run: npm run build
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID_BACKEND }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_BACKEND }}
         working-directory: ./backend
       - name: Deploy Backend Project Artifacts to Vercel
         id: deploy_backend
@@ -65,10 +61,7 @@ jobs:
       - name: Update Frontend Environment Variable
         run: echo "NEXT_PUBLIC_BACKEND_URL=${{ env.BACKEND_URL }}" > ./frontend/.env
       - name: Build Frontend Project Artifacts
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID_FRONTEND }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}
+        run: npm run build
         working-directory: ./frontend
       - name: Deploy Frontend Project Artifacts to Vercel
         run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
