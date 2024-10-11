@@ -43,7 +43,7 @@ jobs:
         id: get_backend_url
         run: |
           BACKEND_URL=$(curl -s -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" "https://api.vercel.com/v6/deployments?projectId=${{ secrets.VERCEL_PROJECT_ID_BACKEND }}" | jq -r '.deployments[] | select(.state == "READY" and .target == "preview") | .url' | head -n 1)
-          echo "BACKEND_URL=$BACKEND_URL" >> $GITHUB_ENV
+          echo "BACKEND_URL=https://$BACKEND_URL" >> $GITHUB_ENV
 
   Deploy-Frontend:
     runs-on: ubuntu-latest
