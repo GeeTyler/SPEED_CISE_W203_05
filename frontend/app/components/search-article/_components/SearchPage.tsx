@@ -6,44 +6,30 @@ import useRateArticle from '@/app/hooks/useRateArticle';
 import Label from '@/app/ui/Label';
 import Input from '@/app/ui/Input';
 import Button from '@/app/ui/Button';
-import Select from '@/app/ui/Select';
 
 const SearchPage: React.FC = () => {
-  const [method, setMethod] = useState('');
-  const [startYear, setStartYear] = useState('');
-  const [endYear, setEndYear] = useState('');
+  const [doi, setDoi] = useState(''); // State for DOI input
   const [articles, setArticles] = useState([]);
   const [error, setError] = useState<string | null>(null);
   const [noResults, setNoResults] = useState(false);
   const { searchArticles } = useSearchArticles();
   const { rateArticle } = useRateArticle();
 
-  console.log("Loading state from hook:");
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setNoResults(false);
 
-    const parsedStartYear = parseInt(startYear, 10);
-    const parsedEndYear = parseInt(endYear, 10);
-
-    if (parsedStartYear > parsedEndYear) {
-      setError('Start Year must be less than or equal to End Year.');
+    // Validate DOI input
+    if (!doi) {
+      setError('DOI is required.');
       return;
     }
 
-    const searchParams = {
-      method,
-      startYear: parsedStartYear,
-      endYear: parsedEndYear,
-    };
-
-    // Add the console log here
-    console.log("Submitting form with values:", searchParams);
+    console.log("Submitting form with DOI:", doi);
 
     try {
-      const results = await searchArticles(searchParams);
+      const results = await searchArticles({ doi }); // Fetch articles based on DOI
       if (results.length === 0) {
         setNoResults(true);
       } else {
@@ -70,43 +56,14 @@ const SearchPage: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-6 w-full">
           {error && <div className="text-red-500 text-sm">{error}</div>}
           <div>
-            <Label htmlFor="method" text="Software Engineering Method" />
-            <Select
-              id="method"
-              value={method}
-              onChange={(e) => setMethod(e.target.value)}
-              required
-            >
-              <option value="">Select SE Method</option>
-              <option value="TDD">Test-Driven Development (TDD)</option>
-              <option value="CI">Continuous Integration (CI)</option>
-              {/* Add more SE methods here */}
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="startYear" text="Start Year" />
+            <Label htmlFor="doi" text="Enter DOI" />
             <Input
-              id="startYear"
-              type="number"
-              value={startYear}
-              onChange={(e) => setStartYear(e.target.value)}
+              id="doi"
+              type="text"
+              value={doi}
+              onChange={(e) => setDoi(e.target.value)}
               required
-              placeholder="e.g., 2010"
-              min={1000}
-              max={9999}
-            />
-          </div>
-          <div>
-            <Label htmlFor="endYear" text="End Year" />
-            <Input
-              id="endYear"
-              type="number"
-              value={endYear}
-              onChange={(e) => setEndYear(e.target.value)}
-              required
-              placeholder="e.g., 2023"
-              min={1000}
-              max={9999}
+              placeholder="e.g., 10.1145/2601248.2601267"
             />
           </div>
           <Button type="submit">Search</Button>
@@ -124,19 +81,19 @@ const SearchPage: React.FC = () => {
           <h2 className="text-lg font-bold">Search Results</h2>
           <ul>
             {articles.map((article) => (
-              <li key={article.id} className="border p-4 mb-2">
+              <li key={article._id} className="border p-4 mb-2">
                 <h3 className="text-md font-medium">{article.title}</h3>
                 <p>{article.authors}</p>
                 <p>{article.journal} - {article.year}</p>
                 <p>Publisher: {article.publisher}</p>
-                <p>DOI: {article.doi}</p>
+                <p>DOI: <a href={`https://doi.org/${article.doi}`} target="_blank" rel="noopener noreferrer">{article.doi}</a></p>
 
                 <div className="mt-2">
                   <span className="mr-2">Rate this article:</span>
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
                       key={star}
-                      onClick={() => handleRating(article.id, star)}
+                      onClick={() => handleRating(article._id, star)}
                       className="text-yellow-500"
                     >
                       ★
