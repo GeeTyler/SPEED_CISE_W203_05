@@ -1,5 +1,3 @@
-import { Date } from 'mongoose';
-
 export class SpeedDto {
   _id: string;
   title: string;
