@@ -8,6 +8,7 @@ import { RejectedModule } from './api/articles/module/rejected.module';
 import { AnalystQueueModule } from './api/articles/module/analystqueue.module';
 import { NotificationModule } from './api/articles/module/notification.module';
 import { ArticleModule } from './api/articles/module/article.module'; // Import ArticleModule
+import { SpeedModule } from './api/articles/module/speed.module';
 
 @Module({
   imports: [
