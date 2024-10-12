@@ -17,17 +17,24 @@ const SubmitArticleForm: React.FC = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const { submitArticle } = useSubmitArticle();
 
+  const trimDoi = (doi: string) => {
+    const doiPrefix = 'https://doi.org/';
+    return doi.startsWith(doiPrefix) ? doi.slice(doiPrefix.length) : doi;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
+
+    const trimmedDoi = trimDoi(doi);
 
     const articleData = {
       title,
       authors,
       journal,
       year: parseInt(year, 10),
-      doi,
+      doi: trimmedDoi,
       publisher,
     };
 
