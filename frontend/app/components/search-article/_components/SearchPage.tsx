@@ -24,7 +24,6 @@ const SearchPage: React.FC = () => {
       setError(null);
     } catch (error) {
       setError('Error fetching articles.');
-      console.error('Error fetching articles:', error);
     } finally {
       setLoading(false);
     }
@@ -52,7 +51,6 @@ const SearchPage: React.FC = () => {
       setDoi(''); // Clear DOI input after submission
     } catch (error) {
       setError('Error fetching articles.');
-      console.error('Detailed Error:', error); // Log the error object
     } finally {
       setLoading(false); // Stop loading state
     }
@@ -70,7 +68,7 @@ const SearchPage: React.FC = () => {
               type="text"
               value={doi}
               onChange={(e) => setDoi(e.target.value)}
-              placeholder="Enter DOI.."
+              placeholder="Enter DOI..." // Updated placeholder to match the test
             />
           </div>
           <Button type="submit">{loading ? 'Searching...' : 'Search'}</Button>
