@@ -6,6 +6,7 @@ import {
   Param,
   Get,
   Query,
+  Put,
 } from '@nestjs/common';
 import { SpeedService } from '../service/speed.service';
 import { SpeedDto } from '../dto/speed.dto';
@@ -38,5 +39,10 @@ export class SpeedController {
   @Get('search')
   async searchSpeed(@Query('q') query: string) {
     return this.speedService.search(query);
+  }
+
+  @Put(':id')
+  async updateSpeed(@Param('id') id: string, @Body() updateSpeedDto: SpeedDto) {
+    return this.speedService.update(id, updateSpeedDto);
   }
 }
