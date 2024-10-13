@@ -28,6 +28,18 @@ export class SpeedService {
     return this.speedModel.find().exec();
   }
 
+  async findLatest(): Promise<SpeedArticle[]> {
+    return this.speedModel.find().sort({ submittedAt: -1 }).limit(3).exec();
+  }
+
+  async findById(id: string): Promise<SpeedArticle> {
+    const article = await this.speedModel.findById(id).exec();
+    if (!article) {
+      throw new NotFoundException('Article not found');
+    }
+    return article;
+  }
+
   async search(query: string): Promise<SpeedArticle[]> {
     const articles = await this.findAll();
     if (!query) {
