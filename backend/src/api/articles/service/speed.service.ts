@@ -28,12 +28,24 @@ export class SpeedService {
     return this.speedModel.find().exec();
   }
 
+  async findByDoi(doi: string): Promise<SpeedArticle[]> {
+    return this.speedModel.find({ doi }).exec();
+  }
+
   async search(query: string): Promise<SpeedArticle[]> {
-    const articles = await this.findAll();
     if (!query) {
-      return articles;
+      return this.findAll();
+    }
+    
+
+    // If you're looking for a specific DOI match:
+    const articlesByDoi = await this.findByDoi(query);
+    if (articlesByDoi.length > 0) {
+      return articlesByDoi; // Return articles that match the DOI
     }
 
+    // Fallback to fuzzy search using Levenshtein distance for other fields
+    const articles = await this.findAll();
     const threshold = 3;
     return articles.filter((article) => {
       const fields = [

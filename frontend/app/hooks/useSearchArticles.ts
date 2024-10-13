@@ -2,7 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 
 interface Article {
-  id: string;
+  _id: string;
   title: string;
   authors: string;
   journal: string;
@@ -11,32 +11,40 @@ interface Article {
   doi: string;
 }
 
-interface SearchResponse {
-  articles: Article[];
-}
-
 const useSearchArticles = () => {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const searchArticles = async (searchParams: {
-    method: string;
-    startYear: number;
-    endYear: number;
-  }): Promise<Article[]> => {
+  const searchArticles = async (searchParams: { doi?: string }): Promise<Article[]> => {
     setLoading(true);
+    setError(null); // Reset error state before making the request
 
     try {
-      const response = await axios.post<SearchResponse>(`/api/search-articles`, searchParams);
-      return response.data.articles; // axios automatically parses the JSON response
+      // Construct the query string based on whether DOI is provided
+      const query = searchParams.doi ? `?q=${encodeURIComponent(searchParams.doi)}` : '';
+      // Make the API request to your backend
+      const response = await axios.get<Article[]>(`http://localhost:8082/api/speed/search${query}`);
+      
+      return response.data; // Return the array of articles
     } catch (error) {
-      console.error('Error fetching articles:', error);
-      throw error; // Ensure to handle this in the calling component
+      // Check if the error is an AxiosError
+      if (axios.isAxiosError(error)) {
+        console.error('Error fetching articles:', error);
+        
+        // Use the response message if available
+        setError(error.response?.data?.message || 'Error fetching articles. Please try again later.');
+      } else {
+        console.error('Unexpected error:', error);
+        setError('Error fetching articles. Please try again later.');
+      }
+
+      return []; // Return an empty array in case of error
     } finally {
-      setLoading(false); // Ensure loading state is reset in both success and error cases
+      setLoading(false); // Stop loading state
     }
   };
 
-  return { searchArticles, loading };
+  return { searchArticles, loading, error }; // Return the necessary functions and states
 };
 
 export default useSearchArticles;

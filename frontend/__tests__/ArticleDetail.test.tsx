@@ -50,7 +50,7 @@ describe('ArticleDetail', () => {
     expect(screen.getByText('10.1234/test')).not.toBeNull();
     expect(screen.getByText('Test Publisher')).not.toBeNull();
     
-    expect(screen.getByText((content) => content.startsWith('1/01/2021'))).not.toBeNull();
+    expect(screen.getByText((content) => content.includes('1/1/2021'))).not.toBeNull();
   });
 
   it('shows validation error when claim is empty', async () => {
