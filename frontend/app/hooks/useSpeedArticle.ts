@@ -10,9 +10,10 @@ interface Article {
   doi: string;
   publisher: string;
   submittedAt: string;
+  claim: string;
 }
 
-const useAnalystArticle = (articleId: string) => {
+const useSpeedArticle = (articleId: string) => {
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +22,7 @@ const useAnalystArticle = (articleId: string) => {
     const fetchArticle = async () => {
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/analyst-queue-articles/${articleId}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/speed/${articleId}`
         );
         setArticle(response.data);
       } catch (err) {
@@ -38,4 +39,4 @@ const useAnalystArticle = (articleId: string) => {
   return { article, loading, error };
 };
 
-export default useAnalystArticle;
+export default useSpeedArticle;
