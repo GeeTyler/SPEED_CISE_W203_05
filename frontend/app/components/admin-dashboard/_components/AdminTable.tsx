@@ -32,7 +32,7 @@ const AdminTable = () => {
             <tr key={article._id} className="block md:table-row cursor-pointer">
               {/* Title */}
               <td className="max-md:text-right block md:table-cell py-2 px-4 border-b border-indigo-600">
-                <Link href={`/components/homepage/article/${article._id}`} legacyBehavior>
+                <Link href={`/components/admin-dashboard/article/${article._id}`} legacyBehavior>
                   <a>
                     <span className="font-semibold md:hidden">Title: </span>
                     {article.title}
@@ -41,7 +41,7 @@ const AdminTable = () => {
               </td>
               {/* Authors */}
               <td className="block md:table-cell py-2 px-4 border-b border-indigo-600 text-right">
-                <Link href={`/components/homepage/article/${article._id}`} legacyBehavior>
+                <Link href={`/components/admin-dashboard/article/${article._id}`} legacyBehavior>
                   <a>
                     <span className="font-semibold md:hidden">Authors: </span>
                     {article.authors}
@@ -50,7 +50,7 @@ const AdminTable = () => {
               </td>
               {/* Journal */}
               <td className="block md:table-cell py-2 px-4 border-b border-indigo-600 text-right">
-                <Link href={`/components/homepage/article/${article._id}`} legacyBehavior>
+                <Link href={`/components/admin-dashboard/article/${article._id}`} legacyBehavior>
                   <a>
                     <span className="font-semibold md:hidden">Journal: </span>
                     {article.journal}
@@ -59,7 +59,7 @@ const AdminTable = () => {
               </td>
               {/* Year */}
               <td className="block md:table-cell py-2 px-4 border-b border-indigo-600 text-right">
-                <Link href={`/components/homepage/article/${article._id}`} legacyBehavior>
+                <Link href={`/components/admin-dashboard/article/${article._id}`} legacyBehavior>
                   <a>
                     <span className="font-semibold md:hidden">Year: </span>
                     {article.year}
@@ -68,7 +68,7 @@ const AdminTable = () => {
               </td>
               {/* DOI */}
               <td className="block md:table-cell py-2 px-4 border-b border-indigo-600 text-right">
-                <Link href={`/components/homepage/article/${article._id}`} legacyBehavior>
+                <Link href={`/components/admin-dashboard/article/${article._id}`} legacyBehavior>
                   <a>
                     <span className="font-semibold md:hidden">DOI: </span>
                     {article.doi}
@@ -77,7 +77,7 @@ const AdminTable = () => {
               </td>
               {/* Publisher */}
               <td className="block md:table-cell py-2 px-4 border-b border-indigo-600 text-right">
-                <Link href={`/components/homepage/article/${article._id}`} legacyBehavior>
+                <Link href={`/components/admin-dashboard/article/${article._id}`} legacyBehavior>
                   <a>
                     <span className="font-semibold md:hidden">Publisher: </span>
                     {article.publisher}
@@ -86,7 +86,7 @@ const AdminTable = () => {
               </td>
               {/* Submitted At */}
               <td className="block md:table-cell py-2 px-4 border-b text-right border-indigo-600">
-                <Link href={`/components/homepage/article/${article._id}`} legacyBehavior>
+                <Link href={`/components/admin-dashboard/article/${article._id}`} legacyBehavior>
                   <a>
                     <span className="font-semibold md:hidden">Submitted At: </span>
                     {new Date(article.submittedAt).toLocaleString()}
