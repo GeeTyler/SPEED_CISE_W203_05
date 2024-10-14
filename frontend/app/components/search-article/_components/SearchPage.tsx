@@ -2,37 +2,46 @@
 
 import React, { useState, useEffect } from 'react';
 import useSearchArticles from '@/app/hooks/useSearchArticles'; 
-import Label from '@/app/ui/Label';
 import Input from '@/app/ui/Input';
 import Button from '@/app/ui/Button';
 
 const SearchPage: React.FC = () => {
-  const [doi, setDoi] = useState(''); // State for DOI input
-  const [articles, setArticles] = useState<any[]>([]); // Initialize articles as an empty array
+  const [input, setInput] = useState(''); // State for input
+  interface Article {
+    _id: string;
+    title: string;
+    authors: string;
+    journal: string;
+    year: string | number;
+    publisher: string;
+    doi: string;
+  }
+
+  const [articles, setArticles] = useState<Article[]>([]); // Initialize articles as an empty array
   const [error, setError] = useState<string | null>(null);
   const [noResults, setNoResults] = useState(false);
   const [loading, setLoading] = useState(false); // Loading state
   const { searchArticles } = useSearchArticles();
 
   // Function to fetch all articles
-  const fetchAllArticles = async () => {
+  const fetchAllArticles = React.useCallback(async () => {
     setLoading(true);
     try {
       const results = await searchArticles({}); // Fetch all articles from API
       setArticles(results);
       setNoResults(results.length === 0);
       setError(null);
-    } catch (error) {
+    } catch {
       setError('Error fetching articles.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchArticles]);
 
   // Fetch all articles on component mount
   useEffect(() => {
     fetchAllArticles(); // Automatically fetch all articles on load
-  }, []);
+  }, [fetchAllArticles]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,15 +50,15 @@ const SearchPage: React.FC = () => {
     setLoading(true); // Start loading state
 
     try {
-      if (!doi.trim()) {
+      if (!input.trim()) {
         fetchAllArticles(); // Fetch all articles if DOI input is empty
       } else {
-        const results = await searchArticles({ doi }); // Fetch articles based on DOI
+        const results = await searchArticles({ doi: input }); // Fetch articles based on DOI
         setNoResults(results.length === 0);
         setArticles(results);
       }
-      setDoi(''); // Clear DOI input after submission
-    } catch (error) {
+      setInput(''); // Clear DOI input after submission
+    } catch {
       setError('Error fetching articles.');
     } finally {
       setLoading(false); // Stop loading state
@@ -65,8 +74,8 @@ const SearchPage: React.FC = () => {
             <Input
               id="search"
               type="text"
-              value={doi}
-              onChange={(e) => setDoi(e.target.value)}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
               placeholder="Search for..." // Updated placeholder to match the test
             />
           </div>
