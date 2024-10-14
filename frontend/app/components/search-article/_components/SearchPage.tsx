@@ -26,6 +26,14 @@ const SearchPage: React.FC = () => {
     submittedAt: true,
   });
 
+  // Filter states
+  const [filters, setFilters] = useState({
+    title: '',
+    authors: '',
+    journal: '',
+    year: '',
+  });
+
   // Function to fetch all articles
   const fetchAllArticles = async () => {
     setLoading(true);
@@ -81,6 +89,34 @@ const SearchPage: React.FC = () => {
     }));
   };
 
+  // Update filter state based on user input
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      [field]: e.target.value.toLowerCase(), // Update the filter for the specific field
+    }));
+  };
+
+  // Clear all filters
+  const clearFilters = () => {
+    setFilters({
+      title: '',
+      authors: '',
+      journal: '',
+      year: '',
+    });
+  };
+
+  // Filtered articles based on filters state
+  const filteredArticles = articles.filter((article) => {
+    return (
+      (!filters.title || article.title.toLowerCase().includes(filters.title)) &&
+      (!filters.authors || article.authors.toLowerCase().includes(filters.authors)) &&
+      (!filters.journal || article.journal.toLowerCase().includes(filters.journal)) &&
+      (!filters.year || article.year.toString().includes(filters.year))
+    );
+  });
+
   return (
     <div className="flex flex-col justify-center items-center w-[1200px] m-auto max-md:w-11/12">
       <div className="py-6 rounded shadow flex items-center w-full justify-center">
@@ -123,18 +159,49 @@ const SearchPage: React.FC = () => {
         ))}
       </div>
 
-      <div className="mt-6 w-full">
-        {noResults && (
-          <div className="text-center text-red-500">
-            No results found. Please try another search.
-          </div>
-        )}
+      {/* Filter Inputs */}
+      <div className="flex gap-4 mb-6">
+        <Input
+          id="filter-title"
+          placeholder="Filter by Title"
+          value={filters.title}
+          onChange={(e) => handleFilterChange(e, 'title')}
+          className="text-black"
+        />
+        <Input
+          id="filter-authors"
+          placeholder="Filter by Authors"
+          value={filters.authors}
+          onChange={(e) => handleFilterChange(e, 'authors')}
+          className="text-black"
+        />
+        <Input
+          id="filter-journal"
+          placeholder="Filter by Journal"
+          value={filters.journal}
+          onChange={(e) => handleFilterChange(e, 'journal')}
+          className="text-black"
+        />
+        <Input
+          id="filter-year"
+          placeholder="Filter by Year"
+          value={filters.year}
+          onChange={(e) => handleFilterChange(e, 'year')}
+          className="text-black"
+        />
+      </div>
 
-        {Array.isArray(articles) && articles.length > 0 && (
+      {/* Clear Filters Button */}
+      <div className="my-4">
+        <Button onClick={clearFilters}>Clear Filters</Button>
+      </div>
+
+      <div className="mt-6 w-full">
+        {Array.isArray(filteredArticles) && filteredArticles.length > 0 && (
           <>
             {isGridView ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {articles.map((article) => (
+                {filteredArticles.map((article) => (
                   <div key={article._id} className="border p-4 rounded-lg shadow-lg">
                     {visibleColumns.title && <h3 className="font-semibold mb-2">{article.title}</h3>}
                     {visibleColumns.authors && (
@@ -185,15 +252,15 @@ const SearchPage: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {articles.map((article) => (
+                    {filteredArticles.map((article) => (
                       <tr key={article._id}>
                         {visibleColumns.title && <td className="py-2 px-4 border-b border-indigo-600">{article.title}</td>}
-                        {visibleColumns.authors && <td className="py-2 px-4 border-b border-indigo-600 text-right">{article.authors}</td>}
-                        {visibleColumns.journal && <td className="py-2 px-4 border-b border-indigo-600 text-right">{article.journal}</td>}
-                        {visibleColumns.year && <td className="py-2 px-4 border-b border-indigo-600 text-right">{article.year}</td>}
-                        {visibleColumns.doi && <td className="py-2 px-4 border-b border-indigo-600 text-right">{article.doi}</td>}
-                        {visibleColumns.publisher && <td className="py-2 px-4 border-b border-indigo-600 text-right">{article.publisher}</td>}
-                        {visibleColumns.submittedAt && <td className="py-2 px-4 border-b border-indigo-600 text-right">{new Date(article.submittedAt).toLocaleString()}</td>}
+                        {visibleColumns.authors && <td className="py-2 px-4 border-b border-indigo-600">{article.authors}</td>}
+                        {visibleColumns.journal && <td className="py-2 px-4 border-b border-indigo-600">{article.journal}</td>}
+                        {visibleColumns.year && <td className="py-2 px-4 border-b border-indigo-600">{article.year}</td>}
+                        {visibleColumns.doi && <td className="py-2 px-4 border-b border-indigo-600">{article.doi}</td>}
+                        {visibleColumns.publisher && <td className="py-2 px-4 border-b border-indigo-600">{article.publisher}</td>}
+                        {visibleColumns.submittedAt && <td className="py-2 px-4 border-b border-indigo-600">{new Date(article.submittedAt).toLocaleString()}</td>}
                       </tr>
                     ))}
                   </tbody>
@@ -202,6 +269,7 @@ const SearchPage: React.FC = () => {
             )}
           </>
         )}
+        {noResults && <div className="text-red-500">No results found.</div>}
       </div>
     </div>
   );
