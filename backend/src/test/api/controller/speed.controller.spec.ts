@@ -1,3 +1,4 @@
+// backend/src/test/api/controller/speed.controller.spec.ts
 import { Test, TestingModule } from '@nestjs/testing';
 import { SpeedController } from '../../../api/articles/controller/speed.controller';
 import { SpeedService } from '../../../api/articles/service/speed.service';
@@ -53,6 +54,17 @@ describe('SpeedController', () => {
                 claim: 'Sample Claim',
               },
             ]),
+            update: jest.fn().mockResolvedValue({
+              _id: '1',
+              title: 'Updated Article',
+              authors: 'Author 1, Author 2',
+              journal: 'Updated Journal',
+              year: 2024,
+              doi: '10.1234/updated',
+              publisher: 'Updated Publisher',
+              submittedAt: new Date(),
+              claim: 'Updated Claim',
+            }),
           },
         },
         {
@@ -131,5 +143,27 @@ describe('SpeedController', () => {
       },
     ]);
     expect(speedService.search).toHaveBeenCalledWith(query);
+  });
+
+  it('should update a speed article', async () => {
+    const updateSpeedDto: SpeedDto = {
+      _id: '1',
+      title: 'Updated Article',
+      authors: 'Author 1, Author 2',
+      journal: 'Updated Journal',
+      year: 2024,
+      doi: '10.1234/updated',
+      publisher: 'Updated Publisher',
+      submittedAt: new Date(),
+      claim: 'Updated Claim',
+    };
+    const result = await speedController.updateSpeed('1', updateSpeedDto);
+
+    expect(result).toEqual({
+      ...updateSpeedDto,
+      submittedAt: expect.any(Date),
+    });
+
+    expect(speedService.update).toHaveBeenCalledWith('1', updateSpeedDto);
   });
 });

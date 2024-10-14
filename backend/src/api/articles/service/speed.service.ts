@@ -59,4 +59,14 @@ export class SpeedService {
       return fields.some((field) => levenshtein(field, query) <= threshold);
     });
   }
+
+  async update(id: string, updateSpeedDto: SpeedDto): Promise<SpeedArticle> {
+    const updatedArticle = await this.speedModel
+      .findByIdAndUpdate(id, updateSpeedDto, { new: true })
+      .exec();
+    if (!updatedArticle) {
+      throw new NotFoundException('Article not found');
+    }
+    return updatedArticle;
+  }
 }
