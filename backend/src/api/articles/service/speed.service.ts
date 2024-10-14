@@ -40,12 +40,22 @@ export class SpeedService {
     return article;
   }
 
+  async findByDoi(doi: string): Promise<SpeedArticle[]> {
+    return this.speedModel.find({ doi }).exec();
+  }
+
   async search(query: string): Promise<SpeedArticle[]> {
-    const articles = await this.findAll();
     if (!query) {
-      return articles;
+      return this.findAll();
     }
 
+    // Convert query to lowercase for case-insensitive comparison
+    const lowerCaseQuery = query.toLowerCase();
+
+    // Fetch all articles
+    const articles = await this.findAll();
+
+    // Filter articles based on substring match or fuzzy search
     const threshold = 3;
     return articles.filter((article) => {
       const fields = [
@@ -56,7 +66,19 @@ export class SpeedService {
         article.publisher,
         article.claim,
       ];
-      return fields.some((field) => levenshtein(field, query) <= threshold);
+
+      // Check if any field contains the query as a substring
+      const containsQuery = fields.some((field) =>
+        field.toLowerCase().includes(lowerCaseQuery),
+      );
+
+      // Check if any field matches the query using Levenshtein distance
+      const fuzzyMatch = fields.some(
+        (field) =>
+          levenshtein(field.toLowerCase(), lowerCaseQuery) <= threshold,
+      );
+
+      return containsQuery || fuzzyMatch;
     });
   }
 
