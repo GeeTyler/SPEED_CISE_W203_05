@@ -12,6 +12,7 @@ const SearchPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [noResults, setNoResults] = useState(false);
   const [loading, setLoading] = useState(false); // Loading state
+  const [isGridView, setIsGridView] = useState(false); // State for toggling between views
   const { searchArticles } = useSearchArticles();
 
   // Function to fetch all articles
@@ -56,12 +57,18 @@ const SearchPage: React.FC = () => {
     }
   };
 
+  // Handle toggling between grid and table view
+  const toggleView = () => {
+    setIsGridView(!isGridView);
+  };
+
   return (
-    <div className="flex flex-col justify-center items-center w-1000 m-auto max-md:w-11/12">
+    <div className="flex flex-col justify-center items-center w-[1200px] m-auto max-md:w-11/12">
       <div className="py-6 rounded shadow flex items-center w-full justify-center">
         <form onSubmit={handleSubmit} className="space-y-6 w-full">
           {error && <div className="text-red-500 text-sm">{error}</div>}
           <div>
+
             <Input
               id="search"
               type="text"
@@ -76,6 +83,13 @@ const SearchPage: React.FC = () => {
 
       {loading && <div className="mt-6">Loading articles...</div>} {/* Loading indicator */}
 
+      {/* View Toggle Button */}
+      <div className="my-4">
+        <Button onClick={toggleView}>
+          Switch to {isGridView ? 'Table' : 'Grid'} View
+        </Button>
+      </div>
+
       <div className="mt-6 w-full">
         {noResults && (
           <div className="text-center text-red-500">
@@ -83,20 +97,54 @@ const SearchPage: React.FC = () => {
           </div>
         )}
 
-        {Array.isArray(articles) && articles.length > 0 && ( // Ensure articles is an array and has length
+        <h1 className="text-lg font-bold">Search Results</h1>
+
+        {Array.isArray(articles) && articles.length > 0 && (
           <>
-            <h2 className="text-lg font-bold">Search Results</h2>
-            <ul>
-              {articles.map((article) => (
-                <li key={article._id} className="border p-4 mb-2">
-                  <h3 className="text-md font-medium">{article.title}</h3>
-                  <p>{article.authors}</p>
-                  <p>{article.journal} - {article.year}</p>
-                  <p>Publisher: {article.publisher}</p>
-                  <p>DOI: <a href={`https://librarysearch.aut.ac.nz/vufind/EDS/Search?filter%5B%5D=EXPAND%3A"fulltext"&filter%5B%5D=LIMIT%7CFT%3A"y"&dfApplied=1&lookfor=${article?.doi}&type=AllFields`} target="_blank" rel="noopener noreferrer">{article.doi}</a></p>
-                </li>
-              ))}
-            </ul>
+            {isGridView ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {articles.map((article) => (
+                  <div key={article._id} className="border p-4 rounded-lg shadow-lg">
+                    <h3 className="font-semibold mb-2">{article.title}</h3>
+                    <p className="text-sm"><strong>Authors: </strong>{article.authors}</p>
+                    <p className="text-sm"><strong>Journal: </strong>{article.journal}</p>
+                    <p className="text-sm"><strong>Year: </strong>{article.year}</p>
+                    <p className="text-sm"><strong>DOI: </strong>{article.doi}</p>
+                    <p className="text-sm"><strong>Publisher: </strong>{article.publisher}</p>
+                    <p className="text-sm"><strong>Submitted At: </strong>{new Date(article.submittedAt).toLocaleString()}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full border border-indigo-600 rounded-lg">
+                  <thead>
+                    <tr>
+                      <th className="text-left py-2 px-4 border-b border-indigo-600">Title</th>
+                      <th className="text-right py-2 px-4 border-b border-indigo-600">Authors</th>
+                      <th className="text-right py-2 px-4 border-b border-indigo-600">Journal</th>
+                      <th className="text-right py-2 px-4 border-b border-indigo-600">Year</th>
+                      <th className="text-right py-2 px-4 border-b border-indigo-600">DOI</th>
+                      <th className="text-right py-2 px-4 border-b border-indigo-600">Publisher</th>
+                      <th className="text-right py-2 px-4 border-b border-indigo-600">Submitted At</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {articles.map((article) => (
+                      <tr key={article._id}>
+                        <td className="py-2 px-4 border-b border-indigo-600">{article.title}</td>
+                        <td className="py-2 px-4 border-b border-indigo-600 text-right">{article.authors}</td>
+                        <td className="py-2 px-4 border-b border-indigo-600 text-right">{article.journal}</td>
+                        <td className="py-2 px-4 border-b border-indigo-600 text-right">{article.year}</td>
+                        <td className="py-2 px-4 border-b border-indigo-600 text-right">{article.doi}</td>
+                        <td className="py-2 px-4 border-b border-indigo-600 text-right">{article.publisher}</td>
+                        <td className="py-2 px-4 border-b border-indigo-600 text-right">{new Date(article.submittedAt).toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </>
         )}
       </div>
