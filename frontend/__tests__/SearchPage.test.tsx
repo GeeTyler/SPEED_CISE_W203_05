@@ -104,7 +104,7 @@ describe('SearchPage', () => {
       render(<SearchPage />);
     });
 
-    const input = screen.getByPlaceholderText('Enter DOI...');
+    const input = screen.getByPlaceholderText('Search for...');
     const button = screen.getByRole('button', { name: 'Search' });
 
     fireEvent.change(input, { target: { value: '10.1000/182' } }); // Change DOI input

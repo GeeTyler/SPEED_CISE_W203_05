@@ -62,13 +62,12 @@ const SearchPage: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-6 w-full">
           {error && <div className="text-red-500 text-sm">{error}</div>}
           <div>
-            <Label htmlFor="doi" text="Enter DOI" />
             <Input
-              id="doi"
+              id="search"
               type="text"
               value={doi}
               onChange={(e) => setDoi(e.target.value)}
-              placeholder="Enter DOI..." // Updated placeholder to match the test
+              placeholder="Search for..." // Updated placeholder to match the test
             />
           </div>
           <Button type="submit">{loading ? 'Searching...' : 'Search'}</Button>
@@ -94,7 +93,7 @@ const SearchPage: React.FC = () => {
                   <p>{article.authors}</p>
                   <p>{article.journal} - {article.year}</p>
                   <p>Publisher: {article.publisher}</p>
-                  <p>DOI: <a href={`https://doi.org/${article.doi}`} target="_blank" rel="noopener noreferrer">{article.doi}</a></p>
+                  <p>DOI: <a href={`https://librarysearch.aut.ac.nz/vufind/EDS/Search?filter%5B%5D=EXPAND%3A"fulltext"&filter%5B%5D=LIMIT%7CFT%3A"y"&dfApplied=1&lookfor=${article?.doi}&type=AllFields`} target="_blank" rel="noopener noreferrer">{article.doi}</a></p>
                 </li>
               ))}
             </ul>

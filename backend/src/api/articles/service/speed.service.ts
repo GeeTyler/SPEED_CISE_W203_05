@@ -48,15 +48,14 @@ export class SpeedService {
     if (!query) {
       return this.findAll();
     }
-    
-    // If you're looking for a specific DOI match:
-    const articlesByDoi = await this.findByDoi(query);
-    if (articlesByDoi.length > 0) {
-      return articlesByDoi; // Return articles that match the DOI
-    }
 
-    // Fallback to fuzzy search using Levenshtein distance for other fields
+    // Convert query to lowercase for case-insensitive comparison
+    const lowerCaseQuery = query.toLowerCase();
+
+    // Fetch all articles
     const articles = await this.findAll();
+
+    // Filter articles based on substring match or fuzzy search
     const threshold = 3;
     return articles.filter((article) => {
       const fields = [
@@ -67,7 +66,19 @@ export class SpeedService {
         article.publisher,
         article.claim,
       ];
-      return fields.some((field) => levenshtein(field, query) <= threshold);
+
+      // Check if any field contains the query as a substring
+      const containsQuery = fields.some((field) =>
+        field.toLowerCase().includes(lowerCaseQuery),
+      );
+
+      // Check if any field matches the query using Levenshtein distance
+      const fuzzyMatch = fields.some(
+        (field) =>
+          levenshtein(field.toLowerCase(), lowerCaseQuery) <= threshold,
+      );
+
+      return containsQuery || fuzzyMatch;
     });
   }
 
