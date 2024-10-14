@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { render, screen, fireEvent } from '@testing-library/react';
-import SubmitArticleForm from '../app/components/submit-article/_components/submitArticleForm';
+import SubmitArticleForm from '../../app/components/submit-article/_components/submitArticleForm';
 import axios from 'axios';
 
 jest.mock('axios');

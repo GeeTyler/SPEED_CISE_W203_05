@@ -28,6 +28,18 @@ export class SpeedService {
     return this.speedModel.find().exec();
   }
 
+  async findLatest(): Promise<SpeedArticle[]> {
+    return this.speedModel.find().sort({ submittedAt: -1 }).limit(3).exec();
+  }
+
+  async findById(id: string): Promise<SpeedArticle> {
+    const article = await this.speedModel.findById(id).exec();
+    if (!article) {
+      throw new NotFoundException('Article not found');
+    }
+    return article;
+  }
+
   async findByDoi(doi: string): Promise<SpeedArticle[]> {
     return this.speedModel.find({ doi }).exec();
   }
@@ -37,7 +49,6 @@ export class SpeedService {
       return this.findAll();
     }
     
-
     // If you're looking for a specific DOI match:
     const articlesByDoi = await this.findByDoi(query);
     if (articlesByDoi.length > 0) {
@@ -58,5 +69,15 @@ export class SpeedService {
       ];
       return fields.some((field) => levenshtein(field, query) <= threshold);
     });
+  }
+
+  async update(id: string, updateSpeedDto: SpeedDto): Promise<SpeedArticle> {
+    const updatedArticle = await this.speedModel
+      .findByIdAndUpdate(id, updateSpeedDto, { new: true })
+      .exec();
+    if (!updatedArticle) {
+      throw new NotFoundException('Article not found');
+    }
+    return updatedArticle;
   }
 }
