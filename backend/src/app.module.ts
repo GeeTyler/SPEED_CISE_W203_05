@@ -17,7 +17,7 @@ import { SpeedModule } from './api/articles/module/speed.module';
     RejectedModule,
     AnalystQueueModule,
     NotificationModule,
-    SpeedModule,
+    SpeedModule, 
   ],
   controllers: [AppController],
   providers: [AppService],

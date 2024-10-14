@@ -42,7 +42,7 @@ describe('ArticleDetail', () => {
 
   it('renders article details correctly', () => {
     render(<ArticleDetail articleId="1" />);
-
+  
     expect(screen.getByText('Test Article')).not.toBeNull();
     expect(screen.getByText('John Doe')).not.toBeNull();
     expect(screen.getByText('Test Journal')).not.toBeNull();
@@ -50,7 +50,7 @@ describe('ArticleDetail', () => {
     expect(screen.getByText('10.1234/test')).not.toBeNull();
     expect(screen.getByText('Test Publisher')).not.toBeNull();
     
-    expect(screen.getByText((content) => content.startsWith('1/01/2021'))).not.toBeNull();
+    expect(screen.getByText((content) => content.includes('1/01/2021, 1:00:00 pm'))).not.toBeNull(); // Update date format
   });
 
   it('shows validation error when claim is empty', async () => {

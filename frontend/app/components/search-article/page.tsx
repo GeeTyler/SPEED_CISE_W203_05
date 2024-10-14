@@ -1,9 +1,15 @@
+'use client';
+
+import React from 'react';
+import SearchPage from './_components/SearchPage'; // Ensure this import path is correct
+
 const SearchArticlePage: React.FC = () => {
-    return (
-        <div>
-            <h1>Search Article</h1>
-        </div>
-    );
+  return (
+    <main className="">
+        
+      <SearchPage />
+    </main>
+  );
 };
 
 export default SearchArticlePage;
