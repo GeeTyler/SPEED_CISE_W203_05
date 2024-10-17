@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import useSearchArticles from '@/app/hooks/useSearchArticles'; 
-import Label from '@/app/ui/Label';
 import Input from '@/app/ui/Input';
 import Button from '@/app/ui/Button';
 import {Article} from '@/app/types/Article';

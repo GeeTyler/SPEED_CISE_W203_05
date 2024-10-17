@@ -1,4 +1,3 @@
-// backend/src/test/api/controller/speed.controller.spec.ts
 import { Test, TestingModule } from '@nestjs/testing';
 import { SpeedController } from '../../../api/articles/controller/speed.controller';
 import { SpeedService } from '../../../api/articles/service/speed.service';
@@ -41,19 +40,22 @@ describe('SpeedController', () => {
                 claim: 'Sample Claim',
               },
             ]),
-            search: jest.fn().mockResolvedValue([
-              {
-                _id: '1',
-                title: 'Sample Article',
-                authors: 'Author 1, Author 2',
-                journal: 'Sample Journal',
-                year: 2024,
-                doi: '10.1234/example',
-                publisher: 'Sample Publisher',
-                submittedAt: new Date(),
-                claim: 'Sample Claim',
-              },
-            ]),
+            search: jest.fn().mockResolvedValue({
+              articles: [
+                {
+                  _id: '1',
+                  title: 'Sample Article',
+                  authors: 'Author 1, Author 2',
+                  journal: 'Sample Journal',
+                  year: 2024,
+                  doi: '10.1234/example',
+                  publisher: 'Sample Publisher',
+                  submittedAt: new Date(),
+                  claim: 'Sample Claim',
+                },
+              ],
+              total: 1,
+            }),
             update: jest.fn().mockResolvedValue({
               _id: '1',
               title: 'Updated Article',
@@ -129,20 +131,23 @@ describe('SpeedController', () => {
   it('should search speed articles', async () => {
     const query = 'Sample';
     const result = await speedController.searchSpeed(query);
-    expect(result).toEqual([
-      {
-        _id: '1',
-        title: 'Sample Article',
-        authors: 'Author 1, Author 2',
-        journal: 'Sample Journal',
-        year: 2024,
-        doi: '10.1234/example',
-        publisher: 'Sample Publisher',
-        submittedAt: expect.any(Date),
-        claim: 'Sample Claim',
-      },
-    ]);
-    expect(speedService.search).toHaveBeenCalledWith(query);
+    expect(result).toEqual({
+      articles: [
+        {
+          _id: '1',
+          title: 'Sample Article',
+          authors: 'Author 1, Author 2',
+          journal: 'Sample Journal',
+          year: 2024,
+          doi: '10.1234/example',
+          publisher: 'Sample Publisher',
+          submittedAt: expect.any(Date),
+          claim: 'Sample Claim',
+        },
+      ],
+      total: 1,
+    });
+    expect(speedService.search).toHaveBeenCalledWith(query, 1, 5);
   });
 
   it('should update a speed article', async () => {
