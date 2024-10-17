@@ -28,6 +28,9 @@ export class SpeedArticle {
 
   @Prop({ required: true })
   claim: string;
+
+  @Prop({ type: [Number], default: [] })
+  ratings: number[];
 }
 
 export const SpeedArticleSchema = SchemaFactory.createForClass(SpeedArticle);

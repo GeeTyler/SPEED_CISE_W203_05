@@ -1,22 +1,17 @@
 'use client';
 
 import React, { useState } from 'react';
-import useSearchArticles from '@/app/hooks/useSearchArticles'; 
-import Label from '@/app/ui/Label';
+import useSearchArticles from '@/app/hooks/useSearchArticles';
 import Input from '@/app/ui/Input';
-import Button from '@/app/ui/Button';
-import {Article} from '@/app/types/Article';
+import {Button} from '@/components/ui/button';
+import { Article } from '@/app/types/Article';
+import axios from 'axios';
 
 const SearchPage: React.FC = () => {
   const [input, setInput] = useState(''); // State for input
-  const [searchInput, setSearchInput] = useState('');
   const [articles, setArticles] = useState<Article[]>([]);
-  const [totalResults, setTotalResults] = useState(0);
-  const [page, setPage] = useState(1);
-  const [limit] = useState(5); 
   const [error, setError] = useState<string | null>(null);
-  const [noResults, setNoResults] = useState(false);
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const [isGridView, setIsGridView] = useState(false); // State for toggling between views
   const { searchArticles } = useSearchArticles();
 
@@ -28,7 +23,11 @@ const SearchPage: React.FC = () => {
     year: true,
     doi: true,
     publisher: true,
+    rating: true, // Add rating column
   });
+
+  // State for rating inputs
+  const [ratingsInput, setRatingsInput] = useState<{ [articleId: string]: number }>({});
 
   // Filter states
   const [filters, setFilters] = useState({
@@ -39,17 +38,13 @@ const SearchPage: React.FC = () => {
   });
 
   const fetchArticles = React.useCallback(
-    async (searchInput: string, pageNumber: number) => {
+    async (searchInput: string) => {
       setLoading(true);
       try {
         const results = await searchArticles({
           query: searchInput,
-          page: pageNumber,
-          limit,
         });
-        setArticles(results.articles);
-        setTotalResults(results.total);
-        setNoResults(results.articles.length === 0);
+        setArticles(results);
         setError(null);
       } catch {
         setError('Error fetching articles.');
@@ -57,35 +52,15 @@ const SearchPage: React.FC = () => {
         setLoading(false);
       }
     },
-    [searchArticles, limit],
+    [searchArticles],
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setNoResults(false);
-    setPage(1); 
     const trimmedInput = input.trim();
-    setSearchInput(trimmedInput);
-    await fetchArticles(trimmedInput, 1);
-    setInput(''); 
-  };
-
-  const handlePrevPage = () => {
-    if (page > 1) {
-      const newPage = page - 1;
-      setPage(newPage);
-      fetchArticles(searchInput, newPage);
-    }
-  };
-
-  const handleNextPage = () => {
-    const totalPages = Math.ceil(totalResults / limit);
-    if (page < totalPages) {
-      const newPage = page + 1;
-      setPage(newPage);
-      fetchArticles(searchInput, newPage);
-    }
+    await fetchArticles(trimmedInput);
+    setInput('');
   };
 
   // Handle toggling between grid and table view
@@ -102,10 +77,13 @@ const SearchPage: React.FC = () => {
   };
 
   // Update filter state based on user input
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
+  const handleFilterChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: string,
+  ) => {
     setFilters((prev) => ({
       ...prev,
-      [field]: e.target.value.toLowerCase(), // Update the filter for the specific field
+      [field]: e.target.value.toLowerCase(),
     }));
   };
 
@@ -119,12 +97,50 @@ const SearchPage: React.FC = () => {
     });
   };
 
+  // Handle rating input change
+  const handleRatingChange = (articleId: string, value: string) => {
+    const rating = parseInt(value, 10);
+    if (rating >= 1 && rating <= 10) {
+      setRatingsInput((prev) => ({ ...prev, [articleId]: rating }));
+    }
+  };
+
+  // Submit rating
+  const submitRating = async (articleId: string) => {
+    const rating = ratingsInput[articleId];
+    if (!rating) {
+      alert('Please enter a rating between 1 and 10');
+      return;
+    }
+
+    try {
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/speed/${articleId}/rate`,
+        {
+          rating: rating,
+        },
+      );
+
+      // Fetch articles again to get updated ratings
+      await fetchArticles(input);
+
+      // Provide feedback
+      alert('Rating submitted successfully');
+    } catch (error) {
+      console.error('Error submitting rating:', error);
+      alert('Error submitting rating');
+    }
+  };
+
   // Filtered articles based on filters state
   const filteredArticles = articles.filter((article) => {
     return (
-      (!filters.title || article.title.toLowerCase().includes(filters.title)) &&
-      (!filters.authors || article.authors.toLowerCase().includes(filters.authors)) &&
-      (!filters.journal || article.journal.toLowerCase().includes(filters.journal)) &&
+      (!filters.title ||
+        article.title.toLowerCase().includes(filters.title)) &&
+      (!filters.authors ||
+        article.authors.toLowerCase().includes(filters.authors)) &&
+      (!filters.journal ||
+        article.journal.toLowerCase().includes(filters.journal)) &&
       (!filters.year || article.year.toString().includes(filters.year))
     );
   });
@@ -208,33 +224,41 @@ const SearchPage: React.FC = () => {
       </div>
 
       <div className="mt-6 w-full">
-        {Array.isArray(filteredArticles) && filteredArticles.length > 0 && (
+        {filteredArticles.length > 0 ? (
           <>
             {isGridView ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredArticles.map((article) => (
-                  <div key={article._id} className="border p-4 rounded-lg shadow-lg">
-                    {visibleColumns.title && <h3 className="font-semibold mb-2">{article.title}</h3>}
+                  <div
+                    key={article._id}
+                    className="border p-4 rounded-lg shadow-lg"
+                  >
+                    {visibleColumns.title && (
+                      <h3 className="font-semibold mb-2">{article.title}</h3>
+                    )}
                     {visibleColumns.authors && (
                       <p className="text-sm">
-                        <strong>Authors: </strong>{article.authors}
+                        <strong>Authors: </strong>
+                        {article.authors}
                       </p>
                     )}
                     {visibleColumns.journal && (
                       <p className="text-sm">
-                        <strong>Journal: </strong>{article.journal}
+                        <strong>Journal: </strong>
+                        {article.journal}
                       </p>
                     )}
                     {visibleColumns.year && (
                       <p className="text-sm">
-                        <strong>Year: </strong>{article.year}
+                        <strong>Year: </strong>
+                        {article.year}
                       </p>
                     )}
                     {visibleColumns.doi && (
                       <p className="text-sm">
                         <strong>DOI: </strong>
                         <a
-                          href={`https://librarysearch.aut.ac.nz/vufind/EDS/Search?filter%5B%5D=EXPAND%3A"fulltext"&filter%5B%5D=LIMIT%7CFT%3A"y"&dfApplied=1&lookfor=${article?.doi}&type=AllFields`}
+                          href={`https://librarysearch.aut.ac.nz/vufind/EDS/Search?lookfor=${article.doi}&type=AllFields`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-blue-600 hover:underline"
@@ -245,8 +269,34 @@ const SearchPage: React.FC = () => {
                     )}
                     {visibleColumns.publisher && (
                       <p className="text-sm">
-                        <strong>Publisher: </strong>{article.publisher}
+                        <strong>Publisher: </strong>
+                        {article.publisher}
                       </p>
+                    )}
+                    {visibleColumns.rating && (
+                      <div className="mt-2 flex flex-row justify-center items-center gap-2 items-end">
+                        <div>
+                        <strong>Rating: </strong>
+                        {article.averageRating !== null
+                          ? `${article.averageRating}/10`
+                          : '?/10'}
+                          </div>
+                        <div className="flex flex-row gap-2">
+                          <input
+                            type="number"
+                            min="1"
+                            max="10"
+                            value={ratingsInput[article._id] || ''}
+                            onChange={(e) =>
+                              handleRatingChange(article._id, e.target.value)
+                            }
+                            className="w-20 rounded-lg text-black text-right"
+                          />
+                          <Button onClick={() => submitRating(article._id)}>
+                            Submit Rating
+                          </Button>
+                        </div>
+                      </div>
                     )}
                   </div>
                 ))}
@@ -256,25 +306,66 @@ const SearchPage: React.FC = () => {
                 <table className="min-w-full border border-indigo-600 rounded-lg">
                   <thead>
                     <tr>
-                      {visibleColumns.title && <th className="text-left py-2 px-4 border-b border-indigo-600">Title</th>}
-                      {visibleColumns.authors && <th className="text-right py-2 px-4 border-b border-indigo-600">Authors</th>}
-                      {visibleColumns.journal && <th className="text-right py-2 px-4 border-b border-indigo-600">Journal</th>}
-                      {visibleColumns.year && <th className="text-right py-2 px-4 border-b border-indigo-600">Year</th>}
-                      {visibleColumns.doi && <th className="text-right py-2 px-4 border-b border-indigo-600">DOI</th>}
-                      {visibleColumns.publisher && <th className="text-right py-2 px-4 border-b border-indigo-600">Publisher</th>}
+                      {visibleColumns.title && (
+                        <th className="text-left py-2 px-4 border-b border-indigo-600">
+                          Title
+                        </th>
+                      )}
+                      {visibleColumns.authors && (
+                        <th className="text-left py-2 px-4 border-b border-indigo-600">
+                          Authors
+                        </th>
+                      )}
+                      {visibleColumns.journal && (
+                        <th className="text-left py-2 px-4 border-b border-indigo-600">
+                          Journal
+                        </th>
+                      )}
+                      {visibleColumns.year && (
+                        <th className="text-left py-2 px-4 border-b border-indigo-600">
+                          Year
+                        </th>
+                      )}
+                      {visibleColumns.doi && (
+                        <th className="text-left py-2 px-4 border-b border-indigo-600">
+                          DOI
+                        </th>
+                      )}
+                      {visibleColumns.publisher && (
+                        <th className="text-left py-2 px-4 border-b border-indigo-600">
+                          Publisher
+                        </th>
+                      )}
+                      {visibleColumns.rating && (
+                        <th className="text-left py-2 px-4 border-b border-indigo-600">
+                          Rating
+                        </th>
+                      )}
                     </tr>
                   </thead>
                   <tbody>
                     {filteredArticles.map((article) => (
                       <tr key={article._id}>
-                        {visibleColumns.title && <td className="py-2 px-4 border-b">{article.title}</td>}
-                        {visibleColumns.authors && <td className="py-2 px-4 border-b">{article.authors}</td>}
-                        {visibleColumns.journal && <td className="py-2 px-4 border-b">{article.journal}</td>}
-                        {visibleColumns.year && <td className="py-2 px-4 border-b">{article.year}</td>}
+                        {visibleColumns.title && (
+                          <td className="py-2 px-4 border-b">{article.title}</td>
+                        )}
+                        {visibleColumns.authors && (
+                          <td className="py-2 px-4 border-b">
+                            {article.authors}
+                          </td>
+                        )}
+                        {visibleColumns.journal && (
+                          <td className="py-2 px-4 border-b">
+                            {article.journal}
+                          </td>
+                        )}
+                        {visibleColumns.year && (
+                          <td className="py-2 px-4 border-b">{article.year}</td>
+                        )}
                         {visibleColumns.doi && (
-                          <td className="py-2 px-4 border-b border-indigo-600">
+                          <td className="py-2 px-4 border-b">
                             <a
-                              href={`https://librarysearch.aut.ac.nz/vufind/EDS/Search?filter%5B%5D=EXPAND%3A"fulltext"&filter%5B%5D=LIMIT%7CFT%3A"y"&dfApplied=1&lookfor=${article.doi}&type=AllFields`}
+                              href={`https://librarysearch.aut.ac.nz/vufind/EDS/Search?lookfor=${article.doi}&type=AllFields`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-blue-600 hover:underline"
@@ -283,7 +374,37 @@ const SearchPage: React.FC = () => {
                             </a>
                           </td>
                         )}
-                        {visibleColumns.publisher && <td className="py-2 px-4 border-b">{article.publisher}</td>}
+                        {visibleColumns.publisher && (
+                          <td className="py-2 px-4 border-b">
+                            {article.publisher}
+                          </td>
+                        )}
+                        {visibleColumns.rating && (
+        <td className="py-2 px-4 border-b">
+          <div className="flex flex-col gap-2">
+            <span>
+              {article.averageRating !== null
+                ? `${article.averageRating}/10`
+                : '?/10'}
+            </span>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                min="1"
+                max="10"
+                value={ratingsInput[article._id] || ''}
+                onChange={(e) =>
+                  handleRatingChange(article._id, e.target.value)
+                }
+                className="w-16 text-black p-1"
+              />
+              <Button size="sm" onClick={() => submitRating(article._id)}>
+                Rate
+              </Button>
+            </div>
+          </div>
+        </td>
+      )}
                       </tr>
                     ))}
                   </tbody>
@@ -291,9 +412,9 @@ const SearchPage: React.FC = () => {
               </div>
             )}
           </>
+        ) : (
+          <p>No articles found.</p>
         )}
-
-        {noResults && <p>No articles found.</p>}
       </div>
     </div>
   );
