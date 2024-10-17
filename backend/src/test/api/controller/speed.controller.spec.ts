@@ -1,9 +1,9 @@
-// backend/src/test/api/controller/speed.controller.spec.ts
 import { Test, TestingModule } from '@nestjs/testing';
 import { SpeedController } from '../../../api/articles/controller/speed.controller';
 import { SpeedService } from '../../../api/articles/service/speed.service';
-import { AnalystQueueService } from '../../../api/articles/service/analystqueue.service';
 import { SpeedDto } from '../../../api/articles/dto/speed.dto';
+import { RateArticleDto } from '../../../api/articles/dto/rate-article.dto';
+import { AnalystQueueService } from '../../../api/articles/service/analystqueue.service';
 
 describe('SpeedController', () => {
   let speedController: SpeedController;
@@ -39,6 +39,7 @@ describe('SpeedController', () => {
                 publisher: 'Sample Publisher',
                 submittedAt: new Date(),
                 claim: 'Sample Claim',
+                averageRating: 4.5, // Include averageRating
               },
             ]),
             search: jest.fn().mockResolvedValue([
@@ -52,6 +53,7 @@ describe('SpeedController', () => {
                 publisher: 'Sample Publisher',
                 submittedAt: new Date(),
                 claim: 'Sample Claim',
+                averageRating: 4.5, // Include averageRating
               },
             ]),
             update: jest.fn().mockResolvedValue({
@@ -64,6 +66,46 @@ describe('SpeedController', () => {
               publisher: 'Updated Publisher',
               submittedAt: new Date(),
               claim: 'Updated Claim',
+            }),
+            // Mock implementations for the new methods
+            findLatest: jest.fn().mockResolvedValue([
+              {
+                _id: '2',
+                title: 'Latest Article',
+                authors: 'Author 3, Author 4',
+                journal: 'Latest Journal',
+                year: 2025,
+                doi: '10.1234/latest',
+                publisher: 'Latest Publisher',
+                submittedAt: new Date(),
+                claim: 'Latest Claim',
+                averageRating: 4.0,
+              },
+            ]),
+            addRating: jest.fn().mockResolvedValue({
+              _id: '1',
+              title: 'Sample Article',
+              authors: 'Author 1, Author 2',
+              journal: 'Sample Journal',
+              year: 2024,
+              doi: '10.1234/example',
+              publisher: 'Sample Publisher',
+              submittedAt: new Date(),
+              claim: 'Sample Claim',
+              ratings: [5],
+              averageRating: 5.0,
+            }),
+            findById: jest.fn().mockResolvedValue({
+              _id: '1',
+              title: 'Sample Article',
+              authors: 'Author 1, Author 2',
+              journal: 'Sample Journal',
+              year: 2024,
+              doi: '10.1234/example',
+              publisher: 'Sample Publisher',
+              submittedAt: new Date(),
+              claim: 'Sample Claim',
+              averageRating: 4.5,
             }),
           },
         },
@@ -107,7 +149,6 @@ describe('SpeedController', () => {
     await speedController.deleteSpeed(id);
     expect(speedService.delete).toHaveBeenCalledWith(id);
   });
-
   it('should return an array of speed articles', async () => {
     const result = await speedController.getAllSpeed();
     expect(result).toEqual([
@@ -121,11 +162,12 @@ describe('SpeedController', () => {
         publisher: 'Sample Publisher',
         submittedAt: expect.any(Date),
         claim: 'Sample Claim',
+        averageRating: 4.5, 
       },
     ]);
     expect(speedService.findAll).toHaveBeenCalled();
   });
-
+  
   it('should search speed articles', async () => {
     const query = 'Sample';
     const result = await speedController.searchSpeed(query);
@@ -140,9 +182,176 @@ describe('SpeedController', () => {
         publisher: 'Sample Publisher',
         submittedAt: expect.any(Date),
         claim: 'Sample Claim',
+        averageRating: 4.5, // Include averageRating
       },
     ]);
     expect(speedService.search).toHaveBeenCalledWith(query);
+  });
+
+    // Test for rateArticle method
+  it('should rate an article', async () => {
+    const articleId = '1';
+    const rateArticleDto: RateArticleDto = {
+      rating: 5,
+    };
+
+    const result = await speedController.rateArticle(articleId, rateArticleDto);
+
+    expect(result).toEqual({
+      _id: '1',
+      title: 'Sample Article',
+      authors: 'Author 1, Author 2',
+      journal: 'Sample Journal',
+      year: 2024,
+      doi: '10.1234/example',
+      publisher: 'Sample Publisher',
+      submittedAt: expect.any(Date),
+      claim: 'Sample Claim',
+      ratings: [5],
+      averageRating: 5.0,
+    });
+
+    expect(speedService.addRating).toHaveBeenCalledWith(articleId, rateArticleDto.rating);
+  });
+
+  // Test for getSpeedById method
+  it('should get a speed article by id', async () => {
+    const id = '1';
+  
+    const result = await speedController.getSpeedById(id);
+  
+    expect(result).toEqual({
+      _id: '1',
+      title: 'Sample Article',
+      authors: 'Author 1, Author 2',
+      journal: 'Sample Journal',
+      year: 2024,
+      doi: '10.1234/example',
+      publisher: 'Sample Publisher',
+      submittedAt: expect.any(Date),
+      claim: 'Sample Claim',
+      averageRating: 4.5, 
+    });
+  
+    expect(speedService.findById).toHaveBeenCalledWith(id);
+  });
+  
+
+    // Test for rateArticle method
+  it('should rate an article', async () => {
+    const articleId = '1';
+    const rateArticleDto: RateArticleDto = {
+      rating: 5,
+    };
+
+    const result = await speedController.rateArticle(articleId, rateArticleDto);
+
+    expect(result).toEqual({
+      _id: '1',
+      title: 'Sample Article',
+      authors: 'Author 1, Author 2',
+      journal: 'Sample Journal',
+      year: 2024,
+      doi: '10.1234/example',
+      publisher: 'Sample Publisher',
+      submittedAt: expect.any(Date),
+      claim: 'Sample Claim',
+      ratings: [5],
+      averageRating: 5.0,
+    });
+
+    expect(speedService.addRating).toHaveBeenCalledWith(articleId, rateArticleDto.rating);
+  });
+
+  // Test for getSpeedById method
+  it('should get a speed article by id', async () => {
+    const id = '1';
+
+    const result = await speedController.getSpeedById(id);
+
+    expect(result).toEqual({
+      _id: '1',
+      title: 'Sample Article',
+      authors: 'Author 1, Author 2',
+      journal: 'Sample Journal',
+      year: 2024,
+      doi: '10.1234/example',
+      publisher: 'Sample Publisher',
+      submittedAt: expect.any(Date),
+      claim: 'Sample Claim',
+      averageRating: 4.5,
+    });
+
+    expect(speedService.findById).toHaveBeenCalledWith(id);
+  });
+
+  it('should get the latest speed articles', async () => {
+    const result = await speedController.getLatest();
+
+    expect(result).toEqual([
+      {
+        _id: '2',
+        title: 'Latest Article',
+        authors: 'Author 3, Author 4',
+        journal: 'Latest Journal',
+        year: 2025,
+        doi: '10.1234/latest',
+        publisher: 'Latest Publisher',
+        submittedAt: expect.any(Date), // Use expect.any(Date) for dynamic date values
+        claim: 'Latest Claim',
+        averageRating: 4.0,
+      },
+    ]);
+
+    expect(speedService.findLatest).toHaveBeenCalled();
+  });
+
+  // Test for rateArticle method
+  it('should rate an article', async () => {
+    const articleId = '1';
+    const rateArticleDto: RateArticleDto = {
+      rating: 5,
+    };
+
+    const result = await speedController.rateArticle(articleId, rateArticleDto);
+
+    expect(result).toEqual({
+      _id: '1',
+      title: 'Sample Article',
+      authors: 'Author 1, Author 2',
+      journal: 'Sample Journal',
+      year: 2024,
+      doi: '10.1234/example',
+      publisher: 'Sample Publisher',
+      submittedAt: expect.any(Date),
+      claim: 'Sample Claim',
+      ratings: [5],
+      averageRating: 5.0,
+    });
+
+    expect(speedService.addRating).toHaveBeenCalledWith(articleId, rateArticleDto.rating);
+  });
+
+  // Test for getSpeedById method
+  it('should get a speed article by id', async () => {
+    const id = '1';
+
+    const result = await speedController.getSpeedById(id);
+
+    expect(result).toEqual({
+      _id: '1',
+      title: 'Sample Article',
+      authors: 'Author 1, Author 2',
+      journal: 'Sample Journal',
+      year: 2024,
+      doi: '10.1234/example',
+      publisher: 'Sample Publisher',
+      submittedAt: expect.any(Date),
+      claim: 'Sample Claim',
+      averageRating: 4.5,
+    });
+
+    expect(speedService.findById).toHaveBeenCalledWith(id);
   });
 
   it('should update a speed article', async () => {

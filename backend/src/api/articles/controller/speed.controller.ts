@@ -12,6 +12,7 @@ import { SpeedService } from '../service/speed.service';
 import { SpeedDto } from '../dto/speed.dto';
 import { AnalystQueueService } from '../service/analystqueue.service';
 import { SpeedArticle } from '../schema/speed.schema';
+import { RateArticleDto } from '../dto/rate-article.dto';
 
 @Controller('api/speed')
 export class SpeedController {
@@ -42,15 +43,18 @@ export class SpeedController {
     return this.speedService.findLatest();
   }
 
-  @Get('search')
-  async searchSpeed(
-    @Query('q') query: string,
-    @Query('page') page = '1',
-    @Query('limit') limit = '5',
+  @Post(':id/rate')
+  async rateArticle(
+    @Param('id') articleId: string,
+    @Body() rateArticleDto: RateArticleDto,
   ) {
-    const pageNumber = parseInt(page, 10);
-    const limitNumber = parseInt(limit, 10);
-    return this.speedService.search(query, pageNumber, limitNumber);
+    const { rating } = rateArticleDto;
+    return this.speedService.addRating(articleId, rating);
+  }
+
+  @Get('search')
+  async searchSpeed(@Query('q') query: string): Promise<SpeedArticle[]> {
+    return this.speedService.search(query);
   }
 
   @Put(':id')

@@ -9,12 +9,11 @@ interface Article {
   year: number;
   publisher: string;
   doi: string;
+  averageRating?: number | null;
 }
 
 interface SearchParams {
   query?: string;
-  page?: number;
-  limit?: number;
 }
 
 const useSearchArticles = () => {
@@ -22,7 +21,7 @@ const useSearchArticles = () => {
 
   const searchArticles = async (
     searchParams: SearchParams,
-  ): Promise<{ articles: Article[]; total: number }> => {
+  ): Promise<Article[]> => {
     setError(null);
 
     try {
@@ -31,17 +30,11 @@ const useSearchArticles = () => {
       if (searchParams.query) {
         params.q = searchParams.query;
       }
-      if (searchParams.page !== undefined) {
-        params.page = searchParams.page.toString();
-      }
-      if (searchParams.limit !== undefined) {
-        params.limit = searchParams.limit.toString();
-      }
 
       const queryString = new URLSearchParams(params).toString();
       const query = queryString ? `?${queryString}` : '';
 
-      const response = await axios.get<{ articles: Article[]; total: number }>(
+      const response = await axios.get<Article[]>(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/speed/search${query}`,
       );
 
@@ -57,7 +50,7 @@ const useSearchArticles = () => {
         console.error('Unexpected error:', error);
         setError('Error fetching articles. Please try again later.');
       }
-      return { articles: [], total: 0 };
+      return [];
     }
   };
 
