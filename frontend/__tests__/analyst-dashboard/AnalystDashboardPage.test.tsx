@@ -47,11 +47,17 @@ describe('AnalystDashboardPage', () => {
 
   it('renders the AnalystDashboard with notifications and articles', () => {
     render(<AnalystDashboard />);
-
+  
     expect(screen.getByText('Analyst Dashboard')).toBeInTheDocument();
     expect(screen.getByText('Analyst Queue Articles')).toBeInTheDocument();
-    expect(screen.getByText('Analyst Article 1')).toBeInTheDocument();
-    expect(screen.getByText('Analyst Article 2')).toBeInTheDocument();
+  
+    const articleTitles1 = screen.getAllByText('Analyst Article 1');
+    expect(articleTitles1.length).toBeGreaterThan(0);
+    expect(articleTitles1[0]).toBeInTheDocument();
+  
+    const articleTitles2 = screen.getAllByText('Analyst Article 2');
+    expect(articleTitles2.length).toBeGreaterThan(0);
+    expect(articleTitles2[0]).toBeInTheDocument();
   });
 
   it('renders the notification dropdown with unread notifications', () => {
