@@ -39,12 +39,21 @@ describe('SearchPage', () => {
 
     // Mock the resolved value of the API call
     mockSearchArticles.mockReturnValue({
-      searchArticles: jest.fn().mockResolvedValue(mockArticles),
+      searchArticles: jest.fn().mockResolvedValue({
+        articles: mockArticles,
+        total: mockArticles.length,
+      }),
     });
 
     await act(async () => {
       render(<SearchPage />);
     });
+
+    const input = screen.getByPlaceholderText('Search for...');
+    const button = screen.getByRole('button', { name: 'Search' });
+
+    fireEvent.change(input, { target: { value: 'Article' } }); // Change input
+    fireEvent.click(button); // Click the search button
 
     // Check that the articles appear on the page
     await waitFor(() => {
@@ -63,6 +72,12 @@ describe('SearchPage', () => {
       render(<SearchPage />);
     });
 
+    const input = screen.getByPlaceholderText('Search for...');
+    const button = screen.getByRole('button', { name: 'Search' });
+
+    fireEvent.change(input, { target: { value: 'Article' } }); // Change input
+    fireEvent.click(button); // Click the search button
+
     await waitFor(() => {
       expect(screen.getByText('Error fetching articles.')).toBeInTheDocument();
     });
@@ -71,19 +86,28 @@ describe('SearchPage', () => {
   it('displays "No results found" when no articles are returned', async () => {
     // Mock the resolved value with an empty array
     mockSearchArticles.mockReturnValue({
-      searchArticles: jest.fn().mockResolvedValue([]),
+      searchArticles: jest.fn().mockResolvedValue({
+        articles: [],
+        total: 0,
+      }),
     });
 
     await act(async () => {
       render(<SearchPage />);
     });
 
+    const input = screen.getByPlaceholderText('Search for...');
+    const button = screen.getByRole('button', { name: 'Search' });
+
+    fireEvent.change(input, { target: { value: 'Article' } }); // Change input
+    fireEvent.click(button); // Click the search button
+
     await waitFor(() => {
-      expect(screen.getByText('No results found. Please try another search.')).toBeInTheDocument();
+      expect(screen.getByText('No articles found.')).toBeInTheDocument();
     });
   });
 
-  it('fetches articles based on DOI input', async () => {
+  it('fetches articles based on input', async () => {
     const mockArticles = [
       {
         _id: '1',
@@ -97,7 +121,10 @@ describe('SearchPage', () => {
     ];
 
     mockSearchArticles.mockReturnValue({
-      searchArticles: jest.fn().mockResolvedValue(mockArticles),
+      searchArticles: jest.fn().mockResolvedValue({
+        articles: mockArticles,
+        total: mockArticles.length,
+      }),
     });
 
     await act(async () => {
@@ -107,7 +134,7 @@ describe('SearchPage', () => {
     const input = screen.getByPlaceholderText('Search for...');
     const button = screen.getByRole('button', { name: 'Search' });
 
-    fireEvent.change(input, { target: { value: '10.1000/182' } }); // Change DOI input
+    fireEvent.change(input, { target: { value: '10.1000/182' } }); // Change input
     fireEvent.click(button); // Click the search button
 
     await waitFor(() => {
