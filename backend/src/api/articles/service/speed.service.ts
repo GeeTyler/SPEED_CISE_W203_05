@@ -61,7 +61,6 @@ export class SpeedService {
       return { articles: paginatedArticles, total };
     }
 
-
     const lowerCaseQuery = query.toLowerCase();
     const matchedArticles = [];
 
