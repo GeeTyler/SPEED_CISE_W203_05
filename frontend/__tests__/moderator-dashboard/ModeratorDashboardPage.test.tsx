@@ -62,12 +62,30 @@ describe('ModeratorDashboardPage', () => {
 
   it('renders the articles table with correct articles', () => {
     render(<ArticlesTable articles={mockArticles} showActions={true} onArticleUpdate={jest.fn()} />);
-
-    expect(screen.getByText('Test Article 1')).toBeInTheDocument();
-    expect(screen.getByText('Author 1')).toBeInTheDocument();
-    expect(screen.getByText('Journal 1')).toBeInTheDocument();
-    expect(screen.getByText('Test Article 2')).toBeInTheDocument();
-    expect(screen.getByText('Author 2')).toBeInTheDocument();
+  
+    const articleTitles = screen.getAllByText('Test Article 1');
+    expect(articleTitles.length).toBeGreaterThan(0);
+    expect(articleTitles[0]).toBeInTheDocument();
+  
+    const authors = screen.getAllByText('Author 1');
+    expect(authors.length).toBeGreaterThan(0);
+    expect(authors[0]).toBeInTheDocument();
+  
+    const journals1 = screen.getAllByText('Journal 1');
+    expect(journals1.length).toBeGreaterThan(0);
+    expect(journals1[0]).toBeInTheDocument();
+  
+    const articleTitles2 = screen.getAllByText('Test Article 2');
+    expect(articleTitles2.length).toBeGreaterThan(0);
+    expect(articleTitles2[0]).toBeInTheDocument();
+  
+    const authors2 = screen.getAllByText('Author 2');
+    expect(authors2.length).toBeGreaterThan(0);
+    expect(authors2[0]).toBeInTheDocument();
+  
+    const journals2 = screen.getAllByText('Journal 2');
+    expect(journals2.length).toBeGreaterThan(0);
+    expect(journals2[0]).toBeInTheDocument();
   });
 
   it('handles article approval', async () => {

@@ -7,6 +7,7 @@ import { ModeratorQueueModule } from './api/articles/module/moderatorqueue.modul
 import { RejectedModule } from './api/articles/module/rejected.module';
 import { AnalystQueueModule } from './api/articles/module/analystqueue.module';
 import { NotificationModule } from './api/articles/module/notification.module';
+import { SpeedModule } from './api/articles/module/speed.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { NotificationModule } from './api/articles/module/notification.module';
     RejectedModule,
     AnalystQueueModule,
     NotificationModule,
+    SpeedModule, 
   ],
   controllers: [AppController],
   providers: [AppService],

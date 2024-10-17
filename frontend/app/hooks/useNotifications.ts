@@ -24,7 +24,7 @@ const useNotifications = (type: string) => {
     };
 
     fetchNotifications();
-  }, []);
+  }, [type]); // Added 'type' to the dependency array
 
   return notifications;
 };
