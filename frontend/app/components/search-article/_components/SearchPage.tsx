@@ -1,67 +1,70 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import useSearchArticles from '@/app/hooks/useSearchArticles'; 
 import Input from '@/app/ui/Input';
 import Button from '@/app/ui/Button';
+import {Article} from '@/app/types/Article';
 
 const SearchPage: React.FC = () => {
   const [input, setInput] = useState(''); // State for input
-  interface Article {
-    _id: string;
-    title: string;
-    authors: string;
-    journal: string;
-    year: string | number;
-    publisher: string;
-    doi: string;
-  }
-
-  const [articles, setArticles] = useState<Article[]>([]); // Initialize articles as an empty array
+  const [searchInput, setSearchInput] = useState('');
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [totalResults, setTotalResults] = useState(0);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(5); 
   const [error, setError] = useState<string | null>(null);
   const [noResults, setNoResults] = useState(false);
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false); 
   const { searchArticles } = useSearchArticles();
 
-  // Function to fetch all articles
-  const fetchAllArticles = React.useCallback(async () => {
-    setLoading(true);
-    try {
-      const results = await searchArticles({}); // Fetch all articles from API
-      setArticles(results);
-      setNoResults(results.length === 0);
-      setError(null);
-    } catch {
-      setError('Error fetching articles.');
-    } finally {
-      setLoading(false);
-    }
-  }, [searchArticles]);
-
-  // Fetch all articles on component mount
-  useEffect(() => {
-    fetchAllArticles(); // Automatically fetch all articles on load
-  }, [fetchAllArticles]);
+  const fetchArticles = React.useCallback(
+    async (searchInput: string, pageNumber: number) => {
+      setLoading(true);
+      try {
+        const results = await searchArticles({
+          query: searchInput,
+          page: pageNumber,
+          limit,
+        });
+        setArticles(results.articles);
+        setTotalResults(results.total);
+        setNoResults(results.articles.length === 0);
+        setError(null);
+      } catch {
+        setError('Error fetching articles.');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [searchArticles, limit],
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setNoResults(false);
-    setLoading(true); // Start loading state
+    setPage(1); 
+    const trimmedInput = input.trim();
+    setSearchInput(trimmedInput);
+    await fetchArticles(trimmedInput, 1);
+    setInput(''); 
+  };
 
-    try {
-      if (!input.trim()) {
-        fetchAllArticles(); // Fetch all articles if DOI input is empty
-      } else {
-        const results = await searchArticles({ doi: input }); // Fetch articles based on DOI
-        setNoResults(results.length === 0);
-        setArticles(results);
-      }
-      setInput(''); // Clear DOI input after submission
-    } catch {
-      setError('Error fetching articles.');
-    } finally {
-      setLoading(false); // Stop loading state
+  const handlePrevPage = () => {
+    if (page > 1) {
+      const newPage = page - 1;
+      setPage(newPage);
+      fetchArticles(searchInput, newPage);
+    }
+  };
+
+  const handleNextPage = () => {
+    const totalPages = Math.ceil(totalResults / limit);
+    if (page < totalPages) {
+      const newPage = page + 1;
+      setPage(newPage);
+      fetchArticles(searchInput, newPage);
     }
   };
 
@@ -76,14 +79,14 @@ const SearchPage: React.FC = () => {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Search for..." // Updated placeholder to match the test
+              placeholder="Search for..."
             />
           </div>
           <Button type="submit">{loading ? 'Searching...' : 'Search'}</Button>
         </form>
       </div>
 
-      {loading && <div className="mt-6">Loading articles...</div>} {/* Loading indicator */}
+      {loading && <div className="mt-6">Loading articles...</div>}
 
       <div className="mt-6 w-full">
         {noResults && (
@@ -92,7 +95,7 @@ const SearchPage: React.FC = () => {
           </div>
         )}
 
-        {Array.isArray(articles) && articles.length > 0 && ( // Ensure articles is an array and has length
+        {Array.isArray(articles) && articles.length > 0 && (
           <>
             <h2 className="text-lg font-bold">Search Results</h2>
             <ul>
@@ -100,12 +103,40 @@ const SearchPage: React.FC = () => {
                 <li key={article._id} className="border p-4 mb-2">
                   <h3 className="text-md font-medium">{article.title}</h3>
                   <p>{article.authors}</p>
-                  <p>{article.journal} - {article.year}</p>
+                  <p>
+                    {article.journal} - {article.year}
+                  </p>
                   <p>Publisher: {article.publisher}</p>
-                  <p>DOI: <a href={`https://librarysearch.aut.ac.nz/vufind/EDS/Search?filter%5B%5D=EXPAND%3A"fulltext"&filter%5B%5D=LIMIT%7CFT%3A"y"&dfApplied=1&lookfor=${article?.doi}&type=AllFields`} target="_blank" rel="noopener noreferrer">{article.doi}</a></p>
+                  <p>
+                    DOI:{' '}
+                    <a
+                      href={`https://librarysearch.aut.ac.nz/vufind/EDS/Search?filter%5B%5D=EXPAND%3A"fulltext"&filter%5B%5D=LIMIT%7CFT%3A"y"&dfApplied=1&lookfor=${article?.doi}&type=AllFields`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {article.doi}
+                    </a>
+                  </p>
                 </li>
               ))}
             </ul>
+
+            {totalResults > limit && (
+              <div className="flex justify-between mt-4">
+                <Button onClick={handlePrevPage} disabled={page === 1}>
+                  Previous
+                </Button>
+                <div>
+                  Page {page} of {Math.ceil(totalResults / limit)}
+                </div>
+                <Button
+                  onClick={handleNextPage}
+                  disabled={page === Math.ceil(totalResults / limit)}
+                >
+                  Next
+                </Button>
+              </div>
+            )}
           </>
         )}
       </div>
