@@ -43,8 +43,14 @@ export class SpeedController {
   }
 
   @Get('search')
-  async searchSpeed(@Query('q') query: string) {
-    return this.speedService.search(query);
+  async searchSpeed(
+    @Query('q') query: string,
+    @Query('page') page = '1',
+    @Query('limit') limit = '5',
+  ) {
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+    return this.speedService.search(query, pageNumber, limitNumber);
   }
 
   @Put(':id')

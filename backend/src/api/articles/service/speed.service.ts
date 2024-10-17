@@ -44,42 +44,78 @@ export class SpeedService {
     return this.speedModel.find({ doi }).exec();
   }
 
-  async search(query: string): Promise<SpeedArticle[]> {
-    if (!query) {
-      return this.findAll();
-    }
-
-    // Convert query to lowercase for case-insensitive comparison
-    const lowerCaseQuery = query.toLowerCase();
+  async search(
+    query: string,
+    page = 1,
+    limit = 5,
+  ): Promise<{ articles: SpeedArticle[]; total: number }> {
+    const skip = (page - 1) * limit;
 
     // Fetch all articles
     const articles = await this.findAll();
 
-    // Filter articles based on substring match or fuzzy search
-    const threshold = 3;
-    return articles.filter((article) => {
+    // if query field is null fetch all articles
+    if (!query) {
+      const total = articles.length;
+      const paginatedArticles = articles.slice(skip, skip + limit);
+      return { articles: paginatedArticles, total };
+    }
+
+
+    const lowerCaseQuery = query.toLowerCase();
+    const matchedArticles = [];
+
+    // filter articles based on substring match or fuzzy search
+    for (const article of articles) {
       const fields = [
-        article.title,
-        article.authors,
-        article.journal,
-        article.doi,
-        article.publisher,
-        article.claim,
+        article.title || '',
+        article.authors || '',
+        article.journal || '',
+        article.doi || '',
+        article.publisher || '',
+        article.claim || '',
       ];
 
-      // Check if any field contains the query as a substring
-      const containsQuery = fields.some((field) =>
-        field.toLowerCase().includes(lowerCaseQuery),
-      );
+      let isMatched = false;
 
-      // Check if any field matches the query using Levenshtein distance
-      const fuzzyMatch = fields.some(
-        (field) =>
-          levenshtein(field.toLowerCase(), lowerCaseQuery) <= threshold,
-      );
+      // first we check for substring matches
+      for (const field of fields) {
+        if (field.toLowerCase().includes(lowerCaseQuery)) {
+          isMatched = true;
+          break;
+        }
+      }
 
-      return containsQuery || fuzzyMatch;
-    });
+      // if substring match found, add to matched articles
+      if (isMatched) {
+        matchedArticles.push({ article, score: 0 }); // Score 0 for exact match
+        continue;
+      }
+
+      // If no substring match, use Levenshtein distance
+      const distances = fields.map((field) => {
+        if (!field) return Infinity;
+        return levenshtein(field.toLowerCase(), lowerCaseQuery);
+      });
+
+      const minDistance = Math.min(...distances);
+      const dynamicThreshold = Math.ceil(lowerCaseQuery.length * 0.3);
+
+      if (minDistance <= dynamicThreshold) {
+        matchedArticles.push({ article, score: minDistance });
+      }
+    }
+
+    matchedArticles.sort((a, b) => a.score - b.score);
+
+    const total = matchedArticles.length;
+
+    // Apply pagination
+    const paginatedArticles = matchedArticles
+      .slice(skip, skip + limit)
+      .map(({ article }) => article);
+
+    return { articles: paginatedArticles, total };
   }
 
   async update(id: string, updateSpeedDto: SpeedDto): Promise<SpeedArticle> {
