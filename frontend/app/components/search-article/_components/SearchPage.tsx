@@ -1,17 +1,22 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import useSearchArticles from '@/app/hooks/useSearchArticles'; 
 import Label from '@/app/ui/Label';
 import Input from '@/app/ui/Input';
 import Button from '@/app/ui/Button';
+import {Article} from '@/app/types/Article';
 
 const SearchPage: React.FC = () => {
-  const [doi, setDoi] = useState(''); // State for DOI input
-  const [articles, setArticles] = useState<any[]>([]); // Initialize articles as an empty array
+  const [input, setInput] = useState(''); // State for input
+  const [searchInput, setSearchInput] = useState('');
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [totalResults, setTotalResults] = useState(0);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(5); 
   const [error, setError] = useState<string | null>(null);
   const [noResults, setNoResults] = useState(false);
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false); 
   const [isGridView, setIsGridView] = useState(false); // State for toggling between views
   const { searchArticles } = useSearchArticles();
 
@@ -33,45 +38,53 @@ const SearchPage: React.FC = () => {
     year: '',
   });
 
-  // Function to fetch all articles
-  const fetchAllArticles = async () => {
-    setLoading(true);
-    try {
-      const results = await searchArticles({}); // Fetch all articles from API
-      setArticles(results);
-      setNoResults(results.length === 0);
-      setError(null);
-    } catch (error) {
-      setError('Error fetching articles.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Fetch all articles on component mount
-  useEffect(() => {
-    fetchAllArticles(); // Automatically fetch all articles on load
-  }, []);
+  const fetchArticles = React.useCallback(
+    async (searchInput: string, pageNumber: number) => {
+      setLoading(true);
+      try {
+        const results = await searchArticles({
+          query: searchInput,
+          page: pageNumber,
+          limit,
+        });
+        setArticles(results.articles);
+        setTotalResults(results.total);
+        setNoResults(results.articles.length === 0);
+        setError(null);
+      } catch {
+        setError('Error fetching articles.');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [searchArticles, limit],
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setNoResults(false);
-    setLoading(true); // Start loading state
+    setPage(1); 
+    const trimmedInput = input.trim();
+    setSearchInput(trimmedInput);
+    await fetchArticles(trimmedInput, 1);
+    setInput(''); 
+  };
 
-    try {
-      if (!doi.trim()) {
-        fetchAllArticles(); // Fetch all articles if DOI input is empty
-      } else {
-        const results = await searchArticles({ doi }); // Fetch articles based on DOI
-        setNoResults(results.length === 0);
-        setArticles(results);
-      }
-      setDoi(''); // Clear DOI input after submission
-    } catch (error) {
-      setError('Error fetching articles.');
-    } finally {
-      setLoading(false); // Stop loading state
+  const handlePrevPage = () => {
+    if (page > 1) {
+      const newPage = page - 1;
+      setPage(newPage);
+      fetchArticles(searchInput, newPage);
+    }
+  };
+
+  const handleNextPage = () => {
+    const totalPages = Math.ceil(totalResults / limit);
+    if (page < totalPages) {
+      const newPage = page + 1;
+      setPage(newPage);
+      fetchArticles(searchInput, newPage);
     }
   };
 
@@ -125,16 +138,16 @@ const SearchPage: React.FC = () => {
             <Input
               id="search"
               type="text"
-              value={doi}
-              onChange={(e) => setDoi(e.target.value)}
-              placeholder="Search for..." // Updated placeholder to match the test
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Search for..."
             />
           </div>
           <Button type="submit">{loading ? 'Searching...' : 'Search'}</Button>
         </form>
       </div>
 
-      {loading && <div className="mt-6">Loading articles...</div>} {/* Loading indicator */}
+      {loading && <div className="mt-6">Loading articles...</div>}
 
       {/* View Toggle Button */}
       <div className="my-4">
